@@ -9,7 +9,6 @@ echo try number %num%
 echo.
 cd /d %gcc%
 call gcc.exe -Wall %in% -o %out%
-::-o %out%
 
 pause
 set /A num=%num%+1
