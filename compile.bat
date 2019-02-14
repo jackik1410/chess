@@ -1,7 +1,3 @@
-::planned custom locations?
-::pff honestly batch files are relics already
-
-
 set gcc="F:\ProgramData\MinGW\bin\" &::replace with install location of gcc
 set in="L:\chess\chess.c"
 set out="L:\chess\clickme.exe"
@@ -12,7 +8,7 @@ cls
 echo try number %num%
 echo.
 cd /d %gcc%
-call gcc.exe -Wall %in% -o "L:\chess\clickme.exe"
+call gcc.exe -Wall %in% -o %out%
 ::-o %out%
 
 pause
