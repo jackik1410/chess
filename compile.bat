@@ -1,6 +1,6 @@
 set gcc="F:\ProgramData\MinGW\bin\" &::replace with install location of gcc
-set in="L:\chess\chess.c"
-set out="L:\chess\clickme.exe"
+set in="F:\CodeStuff\chess\chess.c"
+set out="F:\CodeStuff\chess\clickme.exe"
 @echo off
 set num=1
 :start
