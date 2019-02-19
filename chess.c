@@ -21,9 +21,9 @@ optionally research bitmaps~
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
 //#define K
-#define nocolor   "\x1b[0m"
+#define nocolor   "\e[0m"
 
-#define CPlayer1  "\x1b[37m" //color light grey
+#define CPlayer1  "\x1B[37m" //color light grey
 #define CPlayer2  "\x1B[30m" //color black
 
 
@@ -35,10 +35,12 @@ int playernum = 2;
 
 void debug(){ // not recommended, may not work
 	//put your code here and it will run before anything else
-
+	printf(\e[1;34m "Hello, world!\n");
 	//printBoard();
 }
-
+void ErrorMsg(int reason){
+	printf(KRED"\n An ERROR HAS OCCURED, CODE: %d\nGAME WILL CONTINUE"nocolor, reason);
+}
 
 #define rangeX 8
 #define rangeY 8
@@ -113,6 +115,7 @@ void ClearScreen(){
 }
 
 int checkBoard(int turn){
+	//should i check also for own pieces for faulty moves?
 	if(turn == 0){
 	//check white
 	} else {
@@ -120,6 +123,7 @@ int checkBoard(int turn){
 	}
 	return 0;
 }
+
 void skiphSpaces(int rep){
 	if(rep==0) return ;
 	if(rep == 2) {
@@ -139,11 +143,48 @@ void skiphSpaces(int rep){
 	skiphSpaces(rep-1);
 }
 
+void printChar(int piece){
+	printf("c");//for testing only!
+	/*
+	if(piece==0) printf(" "); else {
+		if (piece-piece%6==0) {//player color here
+			printf(CPlayer1);
+		}
+		else if (piece-piece%6==1) {
+			printf(CPlayer2);
+		}
+
+		switch (piece%6) {//printing piece char
+			case 0://pawn 6 12
+				printf("P");
+				break;
+			case 1://Knight 1 7
+				printf("K");
+				break;
+			case 2://Bishop 2 8
+				printf("B");
+				break;
+			case 3://Rook 3 9
+				printf("R");
+				break;
+			case 4://Queen 4 10
+				printf("Q");
+				break;
+			case 5://King 5 11
+				printf("K");
+				break;
+			default:
+				ErrorMsg(__COUNTER__);
+				break;
+		}
+	}
+	*/
+}
+
 void printBoard(){
 	for(int x=0; x<rangeX; x++) {
 		printf("------");
 	}//printing first line
-
 
 	skiphSpaces(1);
 	for(int y=0; y<rangeY; y++){
@@ -157,11 +198,11 @@ void printBoard(){
 						printf(CPlayer2);
 				}
 			}
-			char p = 'c';
 			//char piece= (&pos)->name;
-			//printf(playerColor((&pos)->player));//unsure how to implement player color coding here
-
-			printf("  %c  " nocolor "|", p);// piece
+			//printf(playerColor((&pos)->player));//unsure how to implement effective player color coding here
+			printf("  ");
+			printChar(board[x][y]);//print piece
+			printf("  " nocolor "|");
 		}
 		if(y+1==rangeY) {//print divider if there is another row
 			printf("\n|");
@@ -216,15 +257,21 @@ int playerMove(int player){
 	return 0;
 }
 
+int GameOver(int Status){
+	ClearScreen();
+	printf("GAME OVER\n\nWinner: Player %d", Status);
+	return Status;//makes no sense right now... but i could make some operations with it here before sending it back...
+}
+
 int play(int player, int numTurns){
 	ClearScreen();
 	printf("player %d\n" nocolor, player);
 	printBoard();
 	playerMove(player);
 	int Status=checkBoard(player);
-	if(Status!=0) 	return Status;
+	if(Status!=0) 	return GameOver(Status);
 
-	return play((player + 1) % playernum, numTurns + 1); //may not use numTurnss
+	return play((player + 1) % playernum, numTurns + 1); //may not use numTurns, but would be a nice feature for stats
 }
 
 int main(){
