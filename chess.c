@@ -9,10 +9,13 @@ optionally research bitmaps~
 #include <stdlib.h>
 //#include <string.h>
 #include <stdint.h>
-//#include <windows.h>   // what, we can't use them?
+//#include <graphic.h>//Doesn't work at all - doesn't seem to exist???
+#include <conio.h>
+#include <windows.h>   // what, we can't use them?
 
 //	colors:
 #define KNRM  "\x1B[0m"
+#define KNRM system("COLOR FC");
 #define KRED  "\x1B[31m"
 #define KGRN  "\x1B[32m"
 #define KYEL  "\x1B[33m"
@@ -20,7 +23,6 @@ optionally research bitmaps~
 #define KMAG  "\x1B[35m"
 #define KCYN  "\x1B[36m"
 #define KWHT  "\x1B[37m"
-//#define K
 #define nocolor   "\e[0m"
 
 #define CPlayer1  "\x1B[37m" //color light grey
@@ -31,26 +33,55 @@ optionally research bitmaps~
 //	int x;
 //	int y;
 //};
-int playernum = 2;
+int playernum = 2;//not gonna be changeable too soon...
+
+//dimensions...
+//#define int rangeZ=8; //will not dable with 3D chess for now
+#define rangeX 8
+#define rangeY 8
+//typedef unsigned uint8_t b[rangeX][rangeY];
+int board[rangeX][rangeY];
+
+BOOL (WINAPI *doSetConsoleTextAttribute)(HANDLE hConsoleOutput, WORD attr);
+void Init(){
+	HANDLE hCon;
+	hCon=GetStdHandle(STD_OUTPUT_HANDLE);
+	doSetConsoleTextAttribute=getConsoleFunction("SetConsoleTextAttribute");
+
+}
+
+void *getConsoleFunction(char *name) {
+   static HMODULE kernel32=(HMODULE)0xffffffff;
+   if(kernel32==0)
+      return NULL;
+   if(kernel32==(HMODULE)0xffffffff) {
+      kernel32=LoadLibrary("kernel32.dll");
+      if(kernel32==0)
+         return 0;
+   }
+   return GetProcAddress(kernel32,name);
+}
+
+void Color(int bg, int fr){
+	(*doSetConsoleTextAttribute)(hCon,(bg*16)+fr);
+}
 
 void debug(){ // not recommended, may not work
 	//put your code here and it will run before anything else
-	printf("%c[1;34m Hello, world!\n", 27);
+	system("COLOR 9C");
+	printf("Test\n");
+
+
+
+
+
+	//printf("\033[0;31m Hello, world!\n");
 	//printBoard();
 }
+
 void ErrorMsg(int reason){
 	printf(KRED"\n An ERROR HAS OCCURED, CODE: %d\nGAME WILL CONTINUE"nocolor, reason);
 }
-
-#define rangeX 8
-#define rangeY 8
-//dimensions...
-//#define int rangeZ=8; //will not dable with 3D chess for now
-
-//typedef unsigned uint8_t b[rangeX][rangeY];
-
-
-int board[rangeX][rangeY];
 
 int Betrag(int zahl){
 	if(zahl < 0){
@@ -220,7 +251,7 @@ void printBoard(){
 
 void credits(){
 	ClearScreen();
-	printf("compiled on:" __DATE__ " at " __TIME__ " using C99 version: %li", __STDC_VERSION__"\n");
+	printf("compiled on:" __DATE__ " at " __TIME__ " using C99 version: %li \n", __STDC_VERSION__);
 		printf("Compiled on ");
 	#ifdef __unix__
 		printf("Linux");git
@@ -282,6 +313,7 @@ int play(int player, int numTurns){
 
 int main(){
 	ClearScreen();
+	Init();
 	debug();// solely for testing purposes
 start:;
 	int input;

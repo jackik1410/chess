@@ -97,7 +97,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 
 	if (content == 0) { printf(KRED "\nempty square\n" nocolor); return 0;}
 	if(content<=6){int owner = 0;} else {int owner = 1;}
-	if((owner)!=(player)) { printf(KRED "\nnot your piece!\n" nocolor); return 0;}
+	if(((int)owner)!=((int)player)) { printf(KRED "\nnot your piece!\n" nocolor); return 0;}
 
 	int piece = content%6;//ingores player
 	int deltaX = moveX-posX;//for checking moves
