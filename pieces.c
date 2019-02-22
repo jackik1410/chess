@@ -91,8 +91,9 @@ int owner(int x, int y) {
 	}
 
 }
+
 int checkAllMoves(int content, int player, int posX, int posY, int moveX, int moveY) {
-		// target position on board is already checked! No invalid coordinates passed.
+		// target position on board is already checked! No invalid (off board) coordinates passed.
 
 	if (content == 0) { printf(KRED "\nempty square\n" nocolor); return 0;}
 	if(content<=6){int owner = 0;} else {int owner = 1;}

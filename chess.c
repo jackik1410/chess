@@ -1,6 +1,6 @@
 /*
 changing pieces to values from 0(empty) to 12 (2 * 6 pieces)
-player = 0(if below 7) || 1 (if >6)
+player = 0(if below 7 but !=0) || 1 (if >6)
 
 optionally research bitmaps~
 */
@@ -9,7 +9,7 @@ optionally research bitmaps~
 #include <stdlib.h>
 //#include <string.h>
 #include <stdint.h>
-//#include<windows.h>   // what?
+//#include <windows.h>   // what, we can't use them?
 
 //	colors:
 #define KNRM  "\x1B[0m"
@@ -35,7 +35,7 @@ int playernum = 2;
 
 void debug(){ // not recommended, may not work
 	//put your code here and it will run before anything else
-	printf(\e[1;34m "Hello, world!\n");
+	printf("%c[1;34m Hello, world!\n", 27);
 	//printBoard();
 }
 void ErrorMsg(int reason){
@@ -220,8 +220,14 @@ void printBoard(){
 
 void credits(){
 	ClearScreen();
-	printf("compiled on:" __DATE__ " at " __TIME__ " using C99 version: %li", __STDC_VERSION__  );
-	printf("\n Written and done stuff and so on by Jack ");
+	printf("compiled on:" __DATE__ " at " __TIME__ " using C99 version: %li", __STDC_VERSION__"\n");
+		printf("Compiled on ");
+	#ifdef __unix__
+		printf("Linux");git
+	#elif defined(_WIN32) || defined(WIN32)
+		printf("Windows");
+	#endif
+	printf("\n\n Written and done stuff and so on by Jack ");
 	char null;
 	scanf("%c", &null);
 }
