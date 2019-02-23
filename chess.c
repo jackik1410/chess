@@ -13,22 +13,6 @@ optionally research bitmaps~
 #include <conio.h>
 #include <windows.h>   // what, we can't use them?
 
-//	colors:
-#define KNRM  "\x1B[0m"
-#define KNRM system("COLOR FC");
-#define KRED  "\x1B[31m"
-#define KGRN  "\x1B[32m"
-#define KYEL  "\x1B[33m"
-#define KBLU  "\x1B[34m"
-#define KMAG  "\x1B[35m"
-#define KCYN  "\x1B[36m"
-#define KWHT  "\x1B[37m"
-#define nocolor   "\e[0m"
-
-#define CPlayer1  "\x1B[37m" //color light grey
-#define CPlayer2  "\x1B[30m" //color black
-
-
 // typedef struct move {
 //	int x;
 //	int y;
@@ -42,34 +26,69 @@ int playernum = 2;//not gonna be changeable too soon...
 //typedef unsigned uint8_t b[rangeX][rangeY];
 int board[rangeX][rangeY];
 
-BOOL (WINAPI *doSetConsoleTextAttribute)(HANDLE hConsoleOutput, WORD attr);
-void Init(){
+//TARGET SYSTEM, because some functions differ between OSes
+//#define TargetSystem 'Lin'
+#define TargetSystem 'Win'
+//#define TargetSystem "And" //i'm thinking about it, not sure if i should...
+
+#define CPlayer1  Color(0,15); //color light grey
+#define CPlayer2  Color(15,0); //color black
+	//	colors:
+#if (TargetSystem=='Win')
+	void *getConsoleFunction(char *name);
+	BOOL (WINAPI *doSetConsoleTextAttribute)(HANDLE hConsoleOutput, WORD attr);
 	HANDLE hCon;
-	hCon=GetStdHandle(STD_OUTPUT_HANDLE);
-	doSetConsoleTextAttribute=getConsoleFunction("SetConsoleTextAttribute");
 
-}
+	void Init(){
+		hCon=GetStdHandle(STD_OUTPUT_HANDLE);
+		doSetConsoleTextAttribute=getConsoleFunction("SetConsoleTextAttribute");
 
-void *getConsoleFunction(char *name) {
-   static HMODULE kernel32=(HMODULE)0xffffffff;
-   if(kernel32==0)
-      return NULL;
-   if(kernel32==(HMODULE)0xffffffff) {
-      kernel32=LoadLibrary("kernel32.dll");
-      if(kernel32==0)
-         return 0;
-   }
-   return GetProcAddress(kernel32,name);
-}
+	}
 
-void Color(int bg, int fr){
-	(*doSetConsoleTextAttribute)(hCon,(bg*16)+fr);
-}
+	void *getConsoleFunction(char *name) {
+		static HMODULE kernel32=(HMODULE)0xffffffff;
+		if(kernel32==0)
+			return NULL;
+			if(kernel32==(HMODULE)0xffffffff){
+			kernel32=LoadLibrary("kernel32.dll");
+			if(kernel32==0)
+				return 0;
+			}
+		return GetProcAddress(kernel32,name);
+	}
+
+	void Color(int bg, int fr){
+		(*doSetConsoleTextAttribute)(hCon,(bg*16)+fr);
+	}
+#elif (TargetSystem=='Lin')
+	/*
+	#define KNRM  "\x1B[30m"
+	#define KRED  "\x1B[31m"
+	#define KGRN  "\x1B[32m"
+	#define KYEL  "\x1B[33m"
+	#define KBLU  "\x1B[34m"
+	#define KMAG  "\x1B[35m"
+	#define KCYN  "\x1B[36m"
+	#define KWHT  "\x1B[37m"
+	#define nocolor   "\e[0m"
+
+	#define CPlayer1  "\x1B[37m" //color light grey
+	#define CPlayer2  "\x1B[30m" //color black
+	*/
+
+	void Color(int bg, int fr){//ignores bg color for now, i don't know how to set that sadly...
+
+	}
+#endif
 
 void debug(){ // not recommended, may not work
 	//put your code here and it will run before anything else
-	system("COLOR 9C");
-	printf("Test\n");
+	//system("COLOR 9C");
+for (int i = 0; i < 16; i++) {
+	Color(0,i);
+	printf("Test i=%d\n", i);
+}
+
 
 
 
@@ -80,7 +99,9 @@ void debug(){ // not recommended, may not work
 }
 
 void ErrorMsg(int reason){
-	printf(KRED"\n An ERROR HAS OCCURED, CODE: %d\nGAME WILL CONTINUE"nocolor, reason);
+	Color(0,0);//KRED
+	printf("\n An ERROR HAS OCCURED, CODE: %d\nGAME WILL CONTINUE", reason);
+	Color(0,0);//nocolor
 }
 
 int Betrag(int zahl){
@@ -93,7 +114,7 @@ int Betrag(int zahl){
 const char* playerColor(int player){
 	if(player==0){
 		return "";
-	}else{
+	}elseif(player==1){
 		return "";
 	}
 }
@@ -179,7 +200,7 @@ void printChar(int piece){
 	/*
 	if(piece==0) printf(" "); else {
 		if (piece-piece%6==0) {//player color here
-			printf(CPlayer1);
+			CPlayer1;
 		}
 		else if (piece-piece%6==1) {
 			printf(CPlayer2);
@@ -223,17 +244,19 @@ void printBoard(){
 		for(int x=0; x<rangeX; x++){
 			if (board[x][y]!=0) {
 				if (owner(x, y)==0) {
-					printf(CPlayer1);
+					CPlayer1;
 				}
 				else if (owner(x, y) == 1) {
-						printf(CPlayer2);
+					CPlayer2;
 				}
 			}
 			//char piece= (&pos)->name;
 			//printf(playerColor((&pos)->player));//unsure how to implement effective player color coding here
 			printf("  ");
 			printChar(board[x][y]);//print piece
-			printf("  " nocolor "|");
+			printf("  ");
+			Color(0,0);//nocolor
+			printf("|");
 		}
 		if(y+1==rangeY) {//print divider if there is another row
 			printf("\n|");
@@ -251,6 +274,7 @@ void printBoard(){
 
 void credits(){
 	ClearScreen();
+	Color(0,0);
 	printf("compiled on:" __DATE__ " at " __TIME__ " using C99 version: %li \n", __STDC_VERSION__);
 		printf("Compiled on ");
 	#ifdef __unix__
@@ -259,11 +283,13 @@ void credits(){
 		printf("Windows");
 	#endif
 	printf("\n\n Written and done stuff and so on by Jack ");
+	Color(0,0);
 	char null;
 	scanf("%c", &null);
 }
 
 int menu(){
+	Color(0,0);
 	printf("\n\n modular Chess:\n\n");
 	printf(" 1. play 2player mode\n 8. settings \n 9. credits \n press 0 to quit");
 	int input;
@@ -279,15 +305,18 @@ int playerMove(int player){
 	printf("choose piece:");
 	int inputx; int inputy;
 	while(2 != scanf("%d,%d", &inputx, &inputy)){ //check for inpput validity
-		printf(KRED"\nnot a piece that you own\n"nocolor"please check your input:");
+		Color(0,0);//KRED
+		printf("\nnot a piece that you own\n");
+		Color(0,0);//nocolor
+		printf("please check your input:");
 	}
 	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){
 	if(1){} //check piece ownership
 
-		//copied behavior for checking movement validity
+		//copied behavior for checking movement validity to be DELETED
 	/*
 	while(2 != scanf("%d,%d", &inputx, &inputy)){ //check for inpput validity
-		printf(KRED"\nnot a piece that you own\n"nocolor"please check your input:");
+		printf(KRED"\nnot a piece that you own\n" nocolor "please check your input:");
 	}
 	*/
 	}else return 0;
@@ -302,7 +331,9 @@ int GameOver(int Status){
 
 int play(int player, int numTurns){
 	ClearScreen();
-	printf("player %d\n" nocolor, player);
+	Color(0,0);
+	printf("player %d\n", player);
+	Color(0,0);//nocolor
 	printBoard();
 	playerMove(player);
 	int Status=checkBoard(player);
@@ -342,7 +373,9 @@ start:;
  			break;
 
  		default:
- 			printf(KRED "\nERROR, review input!\n" nocolor);
+			Color(0,0);//KRED
+ 			printf("\nERROR, review input!\n");
+			Color(0,0);//nocolor
  			goto start;
 	}
 
