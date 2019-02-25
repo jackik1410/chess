@@ -1,4 +1,3 @@
-Color(0,0);//
 /*
 //using the integer method now!
 
@@ -76,9 +75,9 @@ void place(char piece, int player, int x, int y){
 
 //backup plan:
 void CollisionAlert(){ //I know it's not worth it to be it's own function ^^
-	Color(0,0);//KRED
+	Color(0,4);//KRED
 	printf("\ncollision with your own piece!\n");
-	Color(0,0);//nocolor
+	Color(0,15);//nocolor
 }
 
 
@@ -98,15 +97,16 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 		// target position on board is already checked! No invalid (off board) coordinates passed.
 
 	if (content == 0) {
-		Color(0,0);//KRED
+		Color(0,4);//KRED
 		printf("\nempty square\n");
-		Color(0,0);//nocolor
-		return 0;}
+		Color(0,15);//nocolor
+		return 0;
+	}
 	if(content<=6){int owner = 0;} else {int owner = 1;}
 	if(((int)owner)!=((int)player)) {
-		Color(0,0);//KRED
+		Color(0,4);//KRED
 		printf("\nnot your piece!\n");
-		Color(0,0);//nocolor
+		Color(0,15);//nocolor
 		return 0;
 	}
 
@@ -116,7 +116,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 
 
 	switch (piece) { //checking moves for all pieces
-					 //remember checking for path for other pieces!!!
+					//remember checking for path for other pieces!!!
 		case '0'://pawn 6 12
 			if (deltaX == 0) {
 				if( ((player == 0)&&(deltaY==1)) || ((player == 1)&&(deltaY==-1))){
@@ -172,14 +172,14 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 			} else return 0;
 			break;
 		default:
-		Color(0,0);//KRED
+		Color(0,4);//KRED
 			printf("\n error checking move! (piece not found)\n");
-			Color(0,0);//nocolor
+			Color(0,15);//nocolor
 			return 0;
 	}
-	Color(0,0);//KRED
+	Color(0,4);//KRED
 	printf("\n error checking move!\n");
-	Color(0,0);//nocolor
+	Color(0,15);//nocolor
 	return 0;
 
 }

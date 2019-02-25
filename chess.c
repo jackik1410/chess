@@ -23,7 +23,7 @@ int playernum = 2;//not gonna be changeable too soon...
 //#define int rangeZ=8; //will not dable with 3D chess for now
 #define rangeX 8
 #define rangeY 8
-//typedef unsigned uint8_t b[rangeX][rangeY];
+//typedef unsigned uint8_t b[rangeX][rangeY]; //bitmap??
 int board[rangeX][rangeY];
 
 //TARGET SYSTEM, because some functions differ between OSes
@@ -31,8 +31,10 @@ int board[rangeX][rangeY];
 #define TargetSystem 'Win'
 //#define TargetSystem "And" //i'm thinking about it, not sure if i should...
 
-#define CPlayer1  Color(0,15); //color light grey
-#define CPlayer2  Color(15,0); //color black
+#define CPlayer0  7
+#define CPlayer1  8
+#define WhiteTile 15
+#define BlackTile 0
 	//	colors:
 #if (TargetSystem=='Win')
 	void *getConsoleFunction(char *name);
@@ -42,14 +44,13 @@ int board[rangeX][rangeY];
 	void Init(){
 		hCon=GetStdHandle(STD_OUTPUT_HANDLE);
 		doSetConsoleTextAttribute=getConsoleFunction("SetConsoleTextAttribute");
-
 	}
 
 	void *getConsoleFunction(char *name) {
 		static HMODULE kernel32=(HMODULE)0xffffffff;
 		if(kernel32==0)
 			return NULL;
-			if(kernel32==(HMODULE)0xffffffff){
+			if((kernel32==(HMODULE)0xffffffff)){
 			kernel32=LoadLibrary("kernel32.dll");
 			if(kernel32==0)
 				return 0;
@@ -72,8 +73,8 @@ int board[rangeX][rangeY];
 	#define KWHT  "\x1B[37m"
 	#define nocolor   "\e[0m"
 
-	#define CPlayer1  "\x1B[37m" //color light grey
-	#define CPlayer2  "\x1B[30m" //color black
+	#define CPlayer0  "\x1B[37m" //color light grey
+	#define CPlayer1  "\x1B[30m" //color black
 	*/
 
 	void Color(int bg, int fr){//ignores bg color for now, i don't know how to set that sadly...
@@ -84,24 +85,22 @@ int board[rangeX][rangeY];
 void debug(){ // not recommended, may not work
 	//put your code here and it will run before anything else
 	//system("COLOR 9C");
-for (int i = 0; i < 16; i++) {
-	Color(0,i);
-	printf("Test i=%d\n", i);
-}
 
 
+	Color(0,15);
+	printf("TEST\n");
+	debugPrintBoard();
+	getch();
+	ClearScreen();
 
 
-
-
-	//printf("\033[0;31m Hello, world!\n");
-	//printBoard();
+	//colordemo();
 }
 
 void ErrorMsg(int reason){
-	Color(0,0);//KRED
+	Color(0,4);//KRED
 	printf("\n An ERROR HAS OCCURED, CODE: %d\nGAME WILL CONTINUE", reason);
-	Color(0,0);//nocolor
+	Color(0,15);//nocolor
 }
 
 int Betrag(int zahl){
@@ -111,14 +110,7 @@ int Betrag(int zahl){
 	return zahl;
 }
 
-const char* playerColor(int player){
-	if(player==0){
-		return "";
-	}elseif(player==1){
-		return "";
-	}
-}
-
+#include "debug.c" //just some test functions so that i don't have to enter the konami code every single time...
 #include "pieces.c" //all declarations and definitions for pieces and movement
 
 
@@ -195,16 +187,10 @@ void skiphSpaces(int rep){
 	skiphSpaces(rep-1);
 }
 
-void printChar(int piece){
+void printChar(int piece){//player color already applied!
 	printf("c");//for testing only!
 	/*
-	if(piece==0) printf(" "); else {
-		if (piece-piece%6==0) {//player color here
-			CPlayer1;
-		}
-		else if (piece-piece%6==1) {
-			printf(CPlayer2);
-		}
+	if(piece==0) printf(" ");
 
 		switch (piece%6) {//printing piece char
 			case 0://pawn 6 12
@@ -233,6 +219,8 @@ void printChar(int piece){
 	*/
 }
 
+
+
 void printBoard(){
 	for(int x=0; x<rangeX; x++) {
 		printf("------");
@@ -241,23 +229,43 @@ void printBoard(){
 	skiphSpaces(1);
 	for(int y=0; y<rangeY; y++){
 		printf("|");
-		for(int x=0; x<rangeX; x++){
-			if (board[x][y]!=0) {
-				if (owner(x, y)==0) {
-					CPlayer1;
+		for(int n=0; n<3; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
+
+			for(int x=0; x<rangeX; x++){
+
+
+				//Colorcoding
+				int square=(x+y)%2;//white or black square
+				int bg;//actual color
+				switch (square) {
+					case 0:
+						bg = WhiteTile;//both defined at top, because of potential text/bg color issues, for quick change
+						break;
+					case 1:
+						bg = BlackTile;
+						break;
 				}
-				else if (owner(x, y) == 1) {
-					CPlayer2;
+
+				int fr;//player color
+
+				if (board[x][y]!=0) {//text color
+					if (owner(x, y)==0) {
+						fr = CPlayer0;
+					}
+					else if (owner(x, y) == 1) {
+						fr = CPlayer1;
+					} else fr = 15;
+				}
+
+				Color(bg, fr);
+				printf("  ");
+				printChar(board[x][y]);//print piece
+				printf("  ");
+				Color(0,15);//nocolor
+				printf("|");
 				}
 			}
-			//char piece= (&pos)->name;
-			//printf(playerColor((&pos)->player));//unsure how to implement effective player color coding here
-			printf("  ");
-			printChar(board[x][y]);//print piece
-			printf("  ");
-			Color(0,0);//nocolor
-			printf("|");
-		}
+
 		if(y+1==rangeY) {//print divider if there is another row
 			printf("\n|");
 			for(int x=0; x<rangeX; x++){
@@ -274,7 +282,7 @@ void printBoard(){
 
 void credits(){
 	ClearScreen();
-	Color(0,0);
+	Color(0,12);
 	printf("compiled on:" __DATE__ " at " __TIME__ " using C99 version: %li \n", __STDC_VERSION__);
 		printf("Compiled on ");
 	#ifdef __unix__
@@ -283,13 +291,13 @@ void credits(){
 		printf("Windows");
 	#endif
 	printf("\n\n Written and done stuff and so on by Jack ");
-	Color(0,0);
+	Color(0,15);
 	char null;
 	scanf("%c", &null);
 }
 
 int menu(){
-	Color(0,0);
+	Color(0,15);
 	printf("\n\n modular Chess:\n\n");
 	printf(" 1. play 2player mode\n 8. settings \n 9. credits \n press 0 to quit");
 	int input;
@@ -305,9 +313,9 @@ int playerMove(int player){
 	printf("choose piece:");
 	int inputx; int inputy;
 	while(2 != scanf("%d,%d", &inputx, &inputy)){ //check for inpput validity
-		Color(0,0);//KRED
+		Color(0,4);//KRED
 		printf("\nnot a piece that you own\n");
-		Color(0,0);//nocolor
+		Color(0,15);//nocolor
 		printf("please check your input:");
 	}
 	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){
@@ -331,9 +339,9 @@ int GameOver(int Status){
 
 int play(int player, int numTurns){
 	ClearScreen();
-	Color(0,0);
+	Color(0,15);
 	printf("player %d\n", player);
-	Color(0,0);//nocolor
+	Color(0,15);//nocolor
 	printBoard();
 	playerMove(player);
 	int Status=checkBoard(player);
@@ -373,9 +381,9 @@ start:;
  			break;
 
  		default:
-			Color(0,0);//KRED
+			Color(0,4);//KRED
  			printf("\nERROR, review input!\n");
-			Color(0,0);//nocolor
+			Color(0,15);//nocolor
  			goto start;
 	}
 
