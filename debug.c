@@ -8,9 +8,13 @@ void colordemo(){
 	}
 }
 
+void BreakError() {
+  printf("\n Broken!!!\n");
+  getch();
+}
 
 void debugPrintBoard(){
-	for(int x=0; x<rangeX; x++) {//printing first line
+	for(int x=0; x<rangeX; x++) {
 		printf("------");
 	}
   printf("\n");
@@ -19,24 +23,24 @@ void debugPrintBoard(){
 	for(int y=0; y<rangeY; y++){
 		for(int n=0; n<3; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
 			if(n=0){
+        BreakError();
 				Color(0,15);//nocolor
-				for(int m=0; m<rangeX; m++) {//printing divider
+				for(int x=0; x<rangeX; x++) {//printing divider
 					printf("------");
 				}
 				printf("\n");
-			};
+			};//var x reset here
 
       printf("|");
 			for(int x=0; x<rangeX; x++){//going through x coords
 				//Colorcoding
-				int square=(x+y)%2;//white or black square
 				int bg;//actual color
-				switch (square) {
+				switch ((x+y)%2) {//white or black square
 					case 0:
 						bg = WhiteTile;//both defined at top, because of potential text/bg color issues, for quick change
 						break;
 					case 1:
-						bg = BlackTile;
+						bg = BlackTile;//defined at top
 						break;
 				}
 
@@ -65,6 +69,7 @@ void debugPrintBoard(){
 			}
 		}
 
+/*
 		if(y+1==rangeY) {//print divider if there is another row
 			printf("\n|");
 			for(int x=0; x<rangeX; x++){
@@ -76,5 +81,6 @@ void debugPrintBoard(){
 			}
 			printf("\n");
 		} //else skiphSpaces(3);
+*/
 	}
 }

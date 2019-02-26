@@ -90,8 +90,9 @@ void debug(){ // not recommended, may not work
 	Color(0,15);
 	printf("TEST\n");
 	debugPrintBoard();
-	getch();
-	ClearScreen();
+
+	//getch();
+	//ClearScreen();
 
 
 	//colordemo();
@@ -351,9 +352,9 @@ int play(int player, int numTurns){
 }
 
 int main(){
-	ClearScreen();
 	Init();
 	debug();// solely for testing purposes
+	ClearScreen();
 start:;
 	int input;
 	input = menu();
