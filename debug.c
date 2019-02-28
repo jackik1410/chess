@@ -14,16 +14,9 @@ void BreakError() {
 }
 
 void debugPrintBoard(){
-	for(int x=0; x<rangeX; x++) {
-		printf("------");
-	}
-  printf("\n");
-
-	//skiphSpaces(1);
 	for(int y=0; y<rangeY; y++){
 		for(int n=0; n<3; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
-			if(n=0){
-        BreakError();
+			if(n==0){
 				Color(0,15);//nocolor
 				for(int x=0; x<rangeX; x++) {//printing divider
 					printf("------");
@@ -49,38 +42,31 @@ void debugPrintBoard(){
 					if (board[x][y]!=0) {//text color
 						if (owner(x, y)==0) {
 							fr = CPlayer0;
+							if(fr==bg) fr = AltWhiteColor;
 						}
 						else if (owner(x, y) == 1) {
 							fr = CPlayer1;
+							if(fr==bg) fr = AltBlackColor;
 						} else fr = 15;
 					}
 				} else fr = 15;
 					Color(bg, fr);
-					printf("	");
+					printf("  ");
 
 					if (n==1) {
 					printChar(board[x][y]);//print piece
 				} else printf(" ");
 
-					printf("	");
+					printf("  ");
 					Color(0,15);//nocolor
 					printf("|");
 
 			}
+			printf("\n");
 		}
-
-/*
-		if(y+1==rangeY) {//print divider if there is another row
-			printf("\n|");
-			for(int x=0; x<rangeX; x++){
-				printf("		 |");
-			}
-			printf("\n");
-			for(int x=0; x<rangeX; x++) {
-				printf("------");
-			}
-			printf("\n");
-		} //else skiphSpaces(3);
-*/
 	}
+	for(int x=0; x<rangeX; x++) {//printing last divider line
+		printf("------");
+	}
+	printf("\n");
 }

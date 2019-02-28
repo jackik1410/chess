@@ -35,6 +35,9 @@ int board[rangeX][rangeY];
 #define CPlayer1  8
 #define WhiteTile 15
 #define BlackTile 0
+//for cases when colors match if defined equal
+#define AltWhiteColor 7
+#define AltBlackColor 8
 	//	colors:
 #if (TargetSystem=='Win')
 	void *getConsoleFunction(char *name);
@@ -87,9 +90,6 @@ void debug(){ // not recommended, may not work
 	//system("COLOR 9C");
 
 
-	Color(0,15);
-	printf("TEST\n");
-	debugPrintBoard();
 
 	//getch();
 	//ClearScreen();
@@ -223,62 +223,61 @@ void printChar(int piece){//player color already applied!
 
 
 void printBoard(){
-	for(int x=0; x<rangeX; x++) {
-		printf("------");
-	}//printing first line
-
-	skiphSpaces(1);
 	for(int y=0; y<rangeY; y++){
-		printf("|");
 		for(int n=0; n<3; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
+			if(n==0){
+				Color(0,15);//nocolor
+				for(int x=0; x<rangeX; x++) {//printing divider
+					printf("------");
+				}
+				printf("\n");
+			};//var x reset here
 
-			for(int x=0; x<rangeX; x++){
-
-
+			printf("|");
+			for(int x=0; x<rangeX; x++){//going through x coords
 				//Colorcoding
-				int square=(x+y)%2;//white or black square
 				int bg;//actual color
-				switch (square) {
+				switch ((x+y)%2) {//white or black square
 					case 0:
 						bg = WhiteTile;//both defined at top, because of potential text/bg color issues, for quick change
 						break;
 					case 1:
-						bg = BlackTile;
+						bg = BlackTile;//defined at top
 						break;
 				}
 
 				int fr;//player color
-
-				if (board[x][y]!=0) {//text color
-					if (owner(x, y)==0) {
-						fr = CPlayer0;
+				if(n==1){//line with actual pieces
+					if (board[x][y]!=0) {//text color
+						if (owner(x, y)==0) {
+							fr = CPlayer0;
+							if(fr==bg) fr = AltWhiteColor;
+						}
+						else if (owner(x, y) == 1) {
+							fr = CPlayer1;
+							if(fr==bg) fr = AltBlackColor;
+						} else fr = 15;
 					}
-					else if (owner(x, y) == 1) {
-						fr = CPlayer1;
-					} else fr = 15;
-				}
+				} else fr = 15;
+					Color(bg, fr);
+					printf("  ");
 
-				Color(bg, fr);
-				printf("  ");
-				printChar(board[x][y]);//print piece
-				printf("  ");
-				Color(0,15);//nocolor
-				printf("|");
-				}
-			}
+					if (n==1) {
+					printChar(board[x][y]);//print piece
+				} else printf(" ");
 
-		if(y+1==rangeY) {//print divider if there is another row
-			printf("\n|");
-			for(int x=0; x<rangeX; x++){
-				printf("     |");
+					printf("  ");
+					Color(0,15);//nocolor
+					printf("|");
+
 			}
 			printf("\n");
-			for(int x=0; x<rangeX; x++) {
-				printf("------");
-			}
-			printf("\n");
-		} else skiphSpaces(3);
+		}
 	}
+	for(int x=0; x<rangeX; x++) {//printing last divider line
+		printf("------");
+	}
+	printf("\n");
 }
 
 void credits(){
