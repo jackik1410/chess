@@ -150,8 +150,8 @@ int SetBoard(){
 		if (y==0||y==7) {//valuable pieces
 			for(int x=0; x<rangeX; x++){
 				int b = Betrag(x -(rangeX / 2));
-				if (b==1){// pieces non central are mirrorablen King and Queen are not
-					//will replace hardcoded positions with ones relavtive to board size for variability
+				if (x==3||x==4){// pieces non central are mirrorablen King and Queen are not
+					//will replace hardcoded positions with ones relavtive to board size for variability later
 					board[3][y]= 4 + 6*player;//queen
 					board[4][y]= 5 + 6*player;//king
 				} else {
