@@ -143,7 +143,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 				//maybe define them as separate functions to do so?
 				//or is there a better way to loop it?
 			break;
-		case '3'://rook 3 9
+		case '1'://rook 1 7
 			if((deltaX==0 && deltaY!=0) || (deltaY==0 && deltaX!=0)) {
 				return 1;
 			} else return 0;
@@ -162,7 +162,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 				return 1;//passed checks
 			} else return 0;//invalid move
 			break;
-		case '1'://knight = Läufer  1 7
+		case '3'://knight = Läufer  3 9
 			if( (Betrag(deltaX)==1 && Betrag(deltaY)==2) || (Betrag(deltaX)==2 && Betrag(deltaY)==1) ){
 				if(board[moveX][moveY]==0) { //check collision
 					return 1;

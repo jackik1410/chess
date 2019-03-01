@@ -90,7 +90,13 @@ void debug(){ // not recommended, may not work
 	//system("COLOR 9C");
 
 
-
+	SetBoard();
+	for (int y = 0; y < 8; y++) {
+		for (int x = 0; x < 8; x++) {
+			printf("%d  ", board[x][y]);
+		}
+		printf("\n");
+	}
 	//getch();
 	//ClearScreen();
 
@@ -100,7 +106,7 @@ void debug(){ // not recommended, may not work
 
 void ErrorMsg(int reason){
 	Color(0,4);//KRED
-	printf("\n An ERROR HAS OCCURED, CODE: %d\nGAME WILL CONTINUE", reason);
+	printf("\nAn ERROR HAS OCCURED, CODE: %d\nGAME WILL CONTINUE\n", reason);
 	Color(0,15);//nocolor
 }
 
@@ -119,7 +125,7 @@ int SetBoard(){
 
 	for(int y=0; y<rangeY; y++){
 		if(y>2&&y<6) continue;
-		if(y==2){//placing pawns here
+		if(y==1){//placing pawns here
 			for(int x=0; x<rangeX; x++){
 				board[x][y]= 12; //see definitions in pieces.c
 			}
@@ -132,25 +138,35 @@ int SetBoard(){
 		}
 		//no need to check more, placing other pieces for each player
 
-		if(y<rangeY) {
-			int player = 1;
+		int player = 0;
+		if(y<(rangeY / 2)) {
+			player = 1;
 				//all pieces are owned by player 1(black)
 		} else {
-			int player = 0;
+			player = 0;
 				//all pieces are owned by player 0(white)
 		}
-		for(int x=0; x<rangeX; x++){
-			int b = Betrag(x -(rangeX / 2)); // pieces non central are mirrorable
-			if (b==1){
 
-			} else {
-
+		if (y==0||y==7) {//valuable pieces
+			for(int x=0; x<rangeX; x++){
+				int b = Betrag(x -(rangeX / 2));
+				if (b==1){// pieces non central are mirrorablen King and Queen are not
+					//will replace hardcoded positions with ones relavtive to board size for variability
+					board[3][y]= 4 + 6*player;//queen
+					board[4][y]= 5 + 6*player;//king
+				} else {
+					if (x<(rangeX/2)) {
+						board[x][y]=1+x+6*player; //piece values are fitted to match
+					} else if (x>(rangeX/2)) {
+						board[x][y]=8-x+6*player;
+					} else {
+						ErrorMsg(__COUNTER__);//wrong board size?
+					}
+				}
+				//board[x][y] = ...
 			}
-			//board[x][y] = ...
 		}
-
 	}
-
 	return 1;
 }
 
@@ -189,36 +205,37 @@ void skiphSpaces(int rep){
 }
 
 void printChar(int piece){//player color already applied!
-	printf("c");//for testing only!
-	/*
-	if(piece==0) printf(" ");
+	//printf("c");//for testing only!
 
-		switch (piece%6) {//printing piece char
-			case 0://pawn 6 12
-				printf("P");
-				break;
-			case 1://Knight 1 7
-				printf("K");
-				break;
-			case 2://Bishop 2 8
-				printf("B");
-				break;
-			case 3://Rook 3 9
-				printf("R");
-				break;
-			case 4://Queen 4 10
-				printf("Q");
-				break;
-			case 5://King 5 11
-				printf("K");
-				break;
-			default:
-				ErrorMsg(__COUNTER__);
-				break;
-		}
+	if(piece==0) printf(" ");//should't happen, is caught before, but better save than sorry
+	//if printing, should throw error at default case
+
+	switch (piece%6) {//printing piece char
+		case 0://pawn 6 12
+			printf("P");
+			break;
+		case 1://Knight 1 7
+			printf("K");
+			break;
+		case 2://Bishop 2 8
+			printf("B");
+			break;
+		case 3://Rook 3 9
+			printf("R");
+			break;
+		case 4://Queen 4 10
+			printf("Q");
+			break;
+		case 5://King 5 11
+			printf("K");
+			break;
+		default:
+			ErrorMsg(__COUNTER__);//wrong argument or wrong value in array
+			break;
 	}
-	*/
 }
+
+
 
 
 
@@ -337,6 +354,11 @@ int GameOver(int Status){
 	return Status;//makes no sense right now... but i could make some operations with it here before sending it back...
 }
 
+void beginPlay(int a, int b){// will become settings for the ai and player
+	SetBoard();
+	play(0,0);
+}
+
 int play(int player, int numTurns){
 	ClearScreen();
 	Color(0,15);
@@ -344,7 +366,7 @@ int play(int player, int numTurns){
 	Color(0,15);//nocolor
 	printBoard();
 	playerMove(player);
-	int Status=checkBoard(player);
+	int Status=checkBoard(player);//checks for status, such as checkmate
 	if(Status!=0) 	return GameOver(Status);
 
 	return play((player + 1) % playernum, numTurns + 1); //may not use numTurns, but would be a nice feature for stats
@@ -362,7 +384,7 @@ start:;
 			goto eof;
 			break;
  		case 1:
- 			play(0, 0);
+ 			beginPlay(0, 0);
  			break;
  		/*
  		case 2: // not sensical! white always starts! only implement when using an C-player
