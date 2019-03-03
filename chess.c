@@ -31,12 +31,12 @@ int board[rangeX][rangeY];
 #define TargetSystem 'Win'
 //#define TargetSystem "And" //i'm thinking about it, not sure if i should...
 
-#define CPlayer0  7
-#define CPlayer1  8
-#define WhiteTile 15
-#define BlackTile 0
+#define CPlayer0  15
+#define CPlayer1  0
+#define WhiteTile 7
+#define BlackTile 8
 //for cases when colors match if defined equal
-#define AltWhiteColor 7
+#define AltWhiteColor 15
 #define AltBlackColor 8
 	//	colors:
 #if (TargetSystem=='Win')
@@ -90,13 +90,6 @@ void debug(){ // not recommended, may not work
 	//system("COLOR 9C");
 
 
-	SetBoard();
-	for (int y = 0; y < 8; y++) {
-		for (int x = 0; x < 8; x++) {
-			printf("%d  ", board[x][y]);
-		}
-		printf("\n");
-	}
 	//getch();
 	//ClearScreen();
 
@@ -205,33 +198,32 @@ void skiphSpaces(int rep){
 }
 
 void printChar(int piece){//player color already applied!
-	//printf("c");//for testing only!
-
-	if(piece==0) printf(" ");//should't happen, is caught before, but better save than sorry
-	//if printing, should throw error at default case
-
-	switch (piece%6) {//printing piece char
-		case 0://pawn 6 12
-			printf("P");
-			break;
-		case 1://Knight 1 7
-			printf("K");
-			break;
-		case 2://Bishop 2 8
-			printf("B");
-			break;
-		case 3://Rook 3 9
-			printf("R");
-			break;
-		case 4://Queen 4 10
-			printf("Q");
-			break;
-		case 5://King 5 11
-			printf("K");
-			break;
-		default:
-			ErrorMsg(__COUNTER__);//wrong argument or wrong value in array
-			break;
+	if(piece==0) {
+		printf(" ");
+	} else{
+		switch (piece%6) {//printing piece char
+			case 0://pawn 6 12
+				printf("P");
+				break;
+			case 1://Rook 1 7
+				printf("R");
+				break;
+			case 2://Knight 3 9 or Springer
+				printf("S");
+				break;
+			case 3://Bishop 2 8
+				printf("B");
+				break;
+			case 4://Queen 4 10
+				printf("Q");
+				break;
+			case 5://King 5 11
+				printf("K");
+				break;
+			default:
+				ErrorMsg(__COUNTER__);//wrong argument or wrong value in array
+				break;
+		}
 	}
 }
 
@@ -240,9 +232,10 @@ void printChar(int piece){//player color already applied!
 
 
 void printBoard(){
+	int div=0; //dividers on or off, will be configurable
 	for(int y=0; y<rangeY; y++){
 		for(int n=0; n<3; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
-			if(n==0){
+			if(n==0&&div==1){
 				Color(0,15);//nocolor
 				for(int x=0; x<rangeX; x++) {//printing divider
 					printf("------");
@@ -250,7 +243,7 @@ void printBoard(){
 				printf("\n");
 			};//var x reset here
 
-			printf("|");
+			if(div==1) printf("|");
 			for(int x=0; x<rangeX; x++){//going through x coords
 				//Colorcoding
 				int bg;//actual color
@@ -285,7 +278,7 @@ void printBoard(){
 
 					printf("  ");
 					Color(0,15);//nocolor
-					printf("|");
+					if(div==1) printf("|");
 
 			}
 			printf("\n");
@@ -327,24 +320,31 @@ int menu(){
 
 int playerMove(int player){
 	printf("\n Your Move! (x,y)\n");
-	printf("choose piece:");
-	int inputx; int inputy;
-	while(2 != scanf("%d,%d", &inputx, &inputy)){ //check for inpput validity
+	printf("choose piece: ");
+	int inputx=-1; int inputy=-1;
+	while(2 != scanf("%d,%d", &inputx, &inputy) || inputx>=rangeX && 0>=inputx  ||  inputy>=rangeY && 0>=inputy || owner(inputx, inputy)!=player){ //check for inpput validity as long as
+		//not valid coordinates, out of bounds or not own
 		Color(0,4);//KRED
-		printf("\nnot a piece that you own\n");
+		printf("\nnot a valid piece that you own\n");
 		Color(0,15);//nocolor
-		printf("please check your input:");
+		printf("please check your input: ");
 	}
-	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){
-	if(1){} //check piece ownership
-
-		//copied behavior for checking movement validity to be DELETED
-	/*
-	while(2 != scanf("%d,%d", &inputx, &inputy)){ //check for inpput validity
-		printf(KRED"\nnot a piece that you own\n" nocolor "please check your input:");
+	//better save than sorry, checking the second time
+	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){//in bounds
+		if(owner(inputx, inputy)==player){//checking ownership
+			printf("\nchoose destination (x,y): ");
+			int xpos=inputx; int ypos=inputy;
+			inputx=-1; inputy=-1;//resetting for new input
+			while (2 != scanf("%d,%d", inputx, inputy) || 0==checkAllMoves(board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
+				printf("\ninvalid, check again :");
+			}
+			//if succeded, execute movement
+			board[inputx][inputy]=board[xpos][ypos];
+			board[xpos][ypos]=0;
+			return 1;
+		}
 	}
-	*/
-	}else return 0;
+	ErrorMsg(__COUNTER__);
 	return 0;
 }
 
@@ -355,6 +355,9 @@ int GameOver(int Status){
 }
 
 void beginPlay(int a, int b){// will become settings for the ai and player
+	for (int n = 0; n < playernum; n++) {
+		PlayerScores[n] = 0;
+	}
 	SetBoard();
 	play(0,0);
 }

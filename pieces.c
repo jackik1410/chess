@@ -96,14 +96,14 @@ int owner(int x, int y) {
 int checkAllMoves(int content, int player, int posX, int posY, int moveX, int moveY) {
 		// target position on board is already checked! No invalid (off board) coordinates passed.
 
-	if (content == 0) {
+	if (content == 0) {//shouldn't happen
 		Color(0,4);//KRED
 		printf("\nempty square\n");
 		Color(0,15);//nocolor
 		return 0;
 	}
 	if(content<=6){int owner = 0;} else {int owner = 1;}
-	if(((int)owner)!=((int)player)) {
+	if(((int)owner)!=((int)player)) {//should also be caught before
 		Color(0,4);//KRED
 		printf("\nnot your piece!\n");
 		Color(0,15);//nocolor
@@ -144,11 +144,27 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 				//or is there a better way to loop it?
 			break;
 		case '1'://rook 1 7
-			if((deltaX==0 && deltaY!=0) || (deltaY==0 && deltaX!=0)) {
+			if((deltaX==0 && deltaY!=0) || (deltaY==0 && deltaX!=0)) {//check if movement is only along 1 axis
+				int delta=deltaX+deltaY;
+				for (int n = 1; n < delta; n++) {//check for path
+					if(board[deltaX/delta * n][deltaY/delta * n]==0){
+						continue;
+					} else return 0;
+				}
+				if(owner(moveX, moveY)==player) return 0;
 				return 1;
 			} else return 0;
 			break;
-		case '2'://bishop 2 8
+		case '2'://knight = Springer  2 8
+			if( (Betrag(deltaX)==1 && Betrag(deltaY)==2) || (Betrag(deltaX)==2 && Betrag(deltaY)==1) ){
+				if(board[moveX][moveY]==0) { //check collision
+					return 1;
+				}else{
+					return 0;
+				}
+			} else return 0;
+			break;
+		case '3'://bishop 3 9
 			if(Betrag(deltaX)==Betrag(deltaY)){//check collision
 				int dx = deltaX / Betrag(deltaX); //needed for iterative square check
 				int dy = deltaY / Betrag(deltaY);
@@ -162,15 +178,6 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 				return 1;//passed checks
 			} else return 0;//invalid move
 			break;
-		case '3'://knight = Läufer  3 9
-			if( (Betrag(deltaX)==1 && Betrag(deltaY)==2) || (Betrag(deltaX)==2 && Betrag(deltaY)==1) ){
-				if(board[moveX][moveY]==0) { //check collision
-					return 1;
-				}else{
-					return 0;
-				}
-			} else return 0;
-			break;
 		default:
 		Color(0,4);//KRED
 			printf("\n error checking move! (piece not found)\n");
@@ -182,4 +189,35 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 	Color(0,15);//nocolor
 	return 0;
 
+}
+
+int PlayerScores[2];//number will be variable later using playernum
+//is set 0 before a match
+void PieceScore(int piece, int player){//maybe later used for AI
+	if (piece!=0&&piece<=12) {//check if valid piece
+		int score = 0;
+		switch (piece%6) {
+			case 0://pawn
+				score = 1;
+				break;
+			case 1://rook
+				score = 5;
+				break;
+			case 2://knight Springer
+				score = 3;
+				break;
+			case 3://bishop
+				score = 3;
+				break;
+			case 4://queen
+				score = 9;
+				break;
+			case 5://king
+				score = 10000;//infty really, but meh
+				break;
+			default:
+				ErrorMsg(__COUNTER__);
+		}
+		PlayerScores[player] += score;
+	} else ErrorMsg(__COUNTER__);
 }
