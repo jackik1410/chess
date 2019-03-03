@@ -85,21 +85,13 @@ int board[rangeX][rangeY];
 	}
 #endif
 
-void debug(){ // not recommended, may not work
-	//put your code here and it will run before anything else
-	//system("COLOR 9C");
-
-
-	//getch();
-	//ClearScreen();
-
-
-	//colordemo();
-}
+//debug();
 
 void ErrorMsg(int reason){
 	Color(0,4);//KRED
-	printf("\nAn ERROR HAS OCCURED, CODE: %d\nGAME WILL CONTINUE\n", reason);
+	printf("\nAn ERROR HAS OCCURED, CODE: %d  GAME WILL CONTINUE\n", reason);
+	//
+	getch();
 	Color(0,15);//nocolor
 }
 
@@ -131,7 +123,7 @@ int SetBoard(){
 		}
 		//no need to check more, placing other pieces for each player
 
-		int player = 0;
+		int player = 3;
 		if(y<(rangeY / 2)) {
 			player = 1;
 				//all pieces are owned by player 1(black)
@@ -319,15 +311,14 @@ int menu(){
 }
 
 int playerMove(int player){
-	printf("\n Your Move! (x,y)\n");
 	printf("choose piece: ");
 	int inputx=-1; int inputy=-1;
-	while(2 != scanf("%d,%d", &inputx, &inputy) || inputx>=rangeX && 0>=inputx  ||  inputy>=rangeY && 0>=inputy || owner(inputx, inputy)!=player){ //check for inpput validity as long as
+	while(2 != scanf("%d,%d", &inputx, &inputy) || inputx>=rangeX || 0>=inputx  ||  inputy>=rangeY || 0>=inputy || owner(inputx, inputy)!=player){ //check for input validity as long as
 		//not valid coordinates, out of bounds or not own
 		Color(0,4);//KRED
-		printf("\nnot a valid piece that you own\n");
+		printf("\nnot a valid piece that you own");
 		Color(0,15);//nocolor
-		printf("please check your input: ");
+		printf("\nplease check your input: ");
 	}
 	//better save than sorry, checking the second time
 	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){//in bounds
@@ -335,9 +326,26 @@ int playerMove(int player){
 			printf("\nchoose destination (x,y): ");
 			int xpos=inputx; int ypos=inputy;
 			inputx=-1; inputy=-1;//resetting for new input
-			while (2 != scanf("%d,%d", inputx, inputy) || 0==checkAllMoves(board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
-				printf("\ninvalid, check again :");
+			while (0==checkAllMoves(board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
+				while (2 != scanf("%d,%d", &inputx, &inputy) || player == owner(inputx, inputy)) {//second check includes check for no movment
+					if(inputx==xpos && inputy==ypos){//opens dialog to go back
+						//might add actual commands in the future to access menu and other things in the future
+						printf("\nSwitch piece? (y/n)");
+						char input;
+						scanf("%c\n", &input);
+						if(input == 'y' || input == 'Y'){
+							printf("\nreturning to piece selection\n");
+							return playerMove(player);
+						}
+					}
+
+					printf("\ninvalid, check again :");
+				}
+
 			}
+
+
+
 			//if succeded, execute movement
 			board[inputx][inputy]=board[xpos][ypos];
 			board[xpos][ypos]=0;
@@ -354,25 +362,43 @@ int GameOver(int Status){
 	return Status;//makes no sense right now... but i could make some operations with it here before sending it back...
 }
 
+//will be editable in settings to properly identify players
+char player0name[20] = "White";//in here like this to make it editable during runtime
+char player1name[20] = "Black";
+const char * PlayerName(int player){//will become configurable via string input
+	switch (player) {
+		case 0:
+			return player0name;
+			break;
+		case 1:
+			return player1name;
+			break;
+		default:
+			ErrorMsg(__COUNTER__);//wrong player argument
+			return "undefined";
+	}
+}
+
+int play(int player, int numTurns){
+	ClearScreen();
+	Color(0,15);
+	printf("player %d, %s\n", player, PlayerName(player));
+	Color(0,15);//nocolor
+	printBoard();
+	printf("\n Your Move! (x,y)\n");
+	playerMove(player);
+	int Status=checkBoard(player);//checks for status, such as checkmate
+	if(Status!=0) 	return GameOver(Status);
+
+	return play((player + 1) % playernum, numTurns + 1); //may not use numTurns, but would be a nice feature for stats
+}
+
 void beginPlay(int a, int b){// will become settings for the ai and player
 	for (int n = 0; n < playernum; n++) {
 		PlayerScores[n] = 0;
 	}
 	SetBoard();
 	play(0,0);
-}
-
-int play(int player, int numTurns){
-	ClearScreen();
-	Color(0,15);
-	printf("player %d\n", player);
-	Color(0,15);//nocolor
-	printBoard();
-	playerMove(player);
-	int Status=checkBoard(player);//checks for status, such as checkmate
-	if(Status!=0) 	return GameOver(Status);
-
-	return play((player + 1) % playernum, numTurns + 1); //may not use numTurns, but would be a nice feature for stats
 }
 
 int main(){
