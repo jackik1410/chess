@@ -51,8 +51,7 @@ int board[rangeX][rangeY];
 
 	void *getConsoleFunction(char *name) {
 		static HMODULE kernel32=(HMODULE)0xffffffff;
-		if(kernel32==0)
-			return NULL;
+		if(kernel32==0) return NULL;
 			if((kernel32==(HMODULE)0xffffffff)){
 			kernel32=LoadLibrary("kernel32.dll");
 			if(kernel32==0)
@@ -298,22 +297,10 @@ void credits(){
 	scanf("%c", &null);
 }
 
-int menu(){
-	Color(0,15);
-	printf("\n\n modular Chess:\n\n");
-	printf(" 1. play 2player mode\n 8. settings \n 9. credits \n press 0 to quit");
-	int input;
-	int output = 0;
-	while(output==0){
-		 output = scanf("%d", &input);
-	};
-	return input;
-}
-
 int playerMove(int player){
 	printf("choose piece: ");
 	int inputx=-1; int inputy=-1;
-	while(2 != scanf("%d,%d", &inputx, &inputy) || inputx>=rangeX || 0>=inputx  ||  inputy>=rangeY || 0>=inputy || owner(inputx, inputy)!=player){ //check for input validity as long as
+	while(2 != scanf("%d,%d", &inputx, &inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy || owner(inputx, inputy)!=player){ //check for input validity as long as
 		//not valid coordinates, out of bounds or not own
 		Color(0,4);//KRED
 		printf("\nnot a valid piece that you own");
@@ -325,9 +312,9 @@ int playerMove(int player){
 		if(owner(inputx, inputy)==player){//checking ownership
 			printf("\nchoose destination (x,y): ");
 			int xpos=inputx; int ypos=inputy;
-			inputx=-1; inputy=-1;//resetting for new input
+			inputx=-1; inputy=-1;//resetting for new input to not trigger returning to selection
 			while (0==checkAllMoves(board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
-				while (2 != scanf("%d,%d", &inputx, &inputy) || player == owner(inputx, inputy)) {//second check includes check for no movment
+				while (2 != scanf("%d,%d", &inputx, &inputy) || player == owner(inputx, inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy) {//second check includes check for no movment
 					if(inputx==xpos && inputy==ypos){//opens dialog to go back
 						//might add actual commands in the future to access menu and other things in the future
 						printf("\nSwitch piece? (y/n)");
@@ -335,6 +322,7 @@ int playerMove(int player){
 						scanf("%c\n", &input);
 						if(input == 'y' || input == 'Y'){
 							printf("\nreturning to piece selection\n");
+							printBoard();
 							return playerMove(player);
 						}
 					}
@@ -399,6 +387,33 @@ void beginPlay(int a, int b){// will become settings for the ai and player
 	}
 	SetBoard();
 	play(0,0);
+}
+
+void settings(){
+	int input;
+	Color(0, 15);
+	printf("settings:\n");
+	while(1!=scanf("%d\n", &input) || 0!=input){
+		switch (input) {
+			case 1:
+				break;
+			default:
+				printf("\n didn't understand that, try again\n");
+		}
+	}
+	ClearScreen();
+}
+
+int menu(){
+	Color(0,15);
+	printf("\n\n modular Chess:\n\n");
+	printf(" 1. play 2player mode\n 8. settings \n 9. credits \n press 0 to quit");
+	int input;
+	int output = 0;
+	while(output==0){
+		 output = scanf("%d", &input);
+	};
+	return input;
 }
 
 int main(){

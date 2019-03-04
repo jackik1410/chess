@@ -1,77 +1,7 @@
-/*
-//using the integer method now!
-
-typedef struct pieces{
-	char name;
-	int player;
-	int points; //for optinoal points counter
-	struct move{
-		// function instead?
-	};
-} piece;
-
-//points counter for pieces?
-//aditional data type for pieces required
-//deconstructer to add points to players
-
-struct pieces empty = {
-	.name=' '
-};
-
-struct pieces pawn0 = {
-	.name='p',
-	.player=0,
-	.points=1
-};
-struct pieces pawn1 = {
-	.name='p',
-	.player=1,
-	.points=1
-};
-
-struct pieces king0 = {
-	.name='k',
-	.player=0
-};
-struct pieces king1 = {
-	.name='k',
-	.player=1
-};
-struct pieces rook0 = {
-	.name='r',
-	.player=0
-};
-struct pieces rook1 = {
-	.name='r',
-	.player=1
-};
-*/
-
-// function pointer to movement functions that check movement validity?
-
-/*			//deprecated...
-int pawn(int Xpos, int Ypos, int Xmove, int Ymove, void* Board){
-	//check if simple move forward and if space empty
-		//return 1
-	//else check if diagonal and if enemy piece there
-		//if so, delete piece and move to square
-			//return 1
-	//return 0 otherwise, invalid move
-}
-*/
-
-//where Board is an array pointing to Null or a piece
-
-
 //not used !
-void place(char piece, int player, int x, int y){
-
-	//board[x][y] =
+void place(int piece, int player, int x, int y){
+	board[x][y] = piece + 6*player;//can be done directly anyway...
 }
-
-
-
-
 
 //backup plan:
 void CollisionAlert(){ //I know it's not worth it to be it's own function ^^
