@@ -159,14 +159,24 @@ void ClearScreen(){
 
 }
 
+int Status = 0;//will be updated every turn and compared to the one before the register check and checkmate
 int checkBoard(int turn){
-	//should i check also for own pieces for faulty moves?
-	if(turn == 0){
-	//check white
-	} else {
-	//check black
+	return 0;//just forr debugging or else...
+	int LastStatus = Status;
+	for (int y = 0; y < rangeY; y++) {
+		for (int x = 0; x < rangeY; x++) {
+			if(board[x][y]==5 || board[x][y]==11){//check for check and compare to last status for checkmate and game over
+				for (int a = 0; a < rangeY; a++) {
+					for (int b = 0; b < rangeY; b++) {
+						if ((owner(x,y)+1)%2==owner(a,b)) if(1==checkAllMoves(board[a][b], (owner(x,y)+1)%2, a, b, x, y)) {
+							Color(2,14);
+							printf("\nIT WORKS?!?! %d %d : %d %d",x,y,a,b);
+						}
+					}
+				}
+			}
+		}
 	}
-	return 0;
 }
 
 void skiphSpaces(int rep){
@@ -219,7 +229,7 @@ void printChar(int piece){//player color already applied!
 }
 
 
-int divider=1; //dividers on or off, will be configurable
+int divider=0; //dividers on or off, will be configurable
 int coords=1; //whether to show the coordinates
 void printBoard(){
 	if (coords==1) {
@@ -234,12 +244,10 @@ void printBoard(){
 	}
 	for(int y=0; y<rangeY; y++){
 		for(int n=0; n<3; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
-			if (coords==1) {
-				if (n==1) {
-					printf(" %d", y);
-				} else {
-					printf("  ");
-				}
+			if (coords==1 && n==1) {
+				printf(" %d", y);
+			} else {
+				printf("  ");
 			}
 			if(n==0 && divider==1){//horizontal divider before square
 				Color(0,15);//nocolor
@@ -247,6 +255,9 @@ void printBoard(){
 					printf("------");//maybe custom characters later, so that (2+width)*rangeX are printed
 				}
 				printf("\n");
+				if (divider==1) {
+					printf("  ");
+				}
 			}//var x reset here
 
 			if(divider==1) printf("|");
@@ -291,6 +302,7 @@ void printBoard(){
 		}
 	}
 	if (divider!=0) {
+		printf("  ");
 		for(int x=0; x<rangeX; x++) {//printing last divider line
 			printf("------");
 		}
@@ -342,6 +354,7 @@ int playerMove(int player){
 							printBoard();
 							return playerMove(player);
 						}
+						printf("\n canceled\n");
 					}
 					printf("\ninvalid, check again :");
 				}
@@ -390,7 +403,7 @@ int play(int player, int numTurns){
 	printBoard();
 	printf("\n Your Move! (x,y)\n");
 	playerMove(player);
-	int Status=checkBoard(player);//checks for status, such as checkmate
+	checkBoard(player);//checks for status, such as checkmate
 	if(Status!=0) 	return GameOver(Status);
 
 	return play((player + 1) % playernum, numTurns + 1); //may not use numTurns, but would be a nice feature for stats
@@ -463,7 +476,7 @@ start:;
 
  		default:
 			Color(0,4);//KRED
- 			printf("\nERROR, review input!\n");
+ 			printf("\nnot an option ^^\n");
 			Color(0,15);//nocolor
  			goto start;
 	}

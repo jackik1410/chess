@@ -32,7 +32,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 		Color(0,4);//KRED
 		printf("\nnot your piece!\n");
 		Color(0,15);//nocolor
-		ErrorMsg(__COUNTER__);//probably artificial input
+		ErrorMsg(__COUNTER__);//probably artificial input, such as an error in checkBoard()
 		return 0;
 	}
 	if(owner(moveX, moveY)==player) return 0;//check if slaying own piece
@@ -58,7 +58,6 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 					if((player == 0 && posY==6 && deltaY==-2) || (player==1 && posY==1 && deltaY==2)){//double move if not moved
 						return 1;
 					}
-
 				return 0;
 				}
 
