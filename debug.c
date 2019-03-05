@@ -18,8 +18,8 @@ void debug(){ // not recommended, may not work
 	//put your code here and it will run before anything else
 	//system("COLOR 9C");
 
-	colordemo();
-	getch();
+	//colordemo();
+	//getch();
 	//debugboard();
 	//printBoard();
 	//playerMove(0);

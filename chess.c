@@ -219,22 +219,37 @@ void printChar(int piece){//player color already applied!
 }
 
 
-
-
-
+int divider=1; //dividers on or off, will be configurable
+int coords=1; //whether to show the coordinates
 void printBoard(){
-	int div=0; //dividers on or off, will be configurable
+	if (coords==1) {
+		printf("  ");
+		for (int x = 0; x < rangeY; x++) {
+			if (divider==1) {
+				printf(" ");
+			}
+			printf("  %d  ", x);
+		}
+		printf("\n");
+	}
 	for(int y=0; y<rangeY; y++){
 		for(int n=0; n<3; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
-			if(n==0&&div==1){
+			if (coords==1) {
+				if (n==1) {
+					printf(" %d", y);
+				} else {
+					printf("  ");
+				}
+			}
+			if(n==0 && divider==1){//horizontal divider before square
 				Color(0,15);//nocolor
 				for(int x=0; x<rangeX; x++) {//printing divider
-					printf("------");
+					printf("------");//maybe custom characters later, so that (2+width)*rangeX are printed
 				}
 				printf("\n");
-			};//var x reset here
+			}//var x reset here
 
-			if(div==1) printf("|");
+			if(divider==1) printf("|");
 			for(int x=0; x<rangeX; x++){//going through x coords
 				//Colorcoding
 				int bg;//actual color
@@ -269,14 +284,16 @@ void printBoard(){
 
 					printf("  ");
 					Color(0,15);//nocolor
-					if(div==1) printf("|");
+					if(divider==1) printf("|");
 
 			}
 			printf("\n");
 		}
 	}
-	for(int x=0; x<rangeX; x++) {//printing last divider line
-		printf("------");
+	if (divider!=0) {
+		for(int x=0; x<rangeX; x++) {//printing last divider line
+			printf("------");
+		}
 	}
 	printf("\n");
 }
@@ -317,19 +334,17 @@ int playerMove(int player){
 				while (2 != scanf("%d,%d", &inputx, &inputy) || player == owner(inputx, inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy) {//second check includes check for no movment
 					if(inputx==xpos && inputy==ypos){//opens dialog to go back
 						//might add actual commands in the future to access menu and other things in the future
-						printf("\nSwitch piece? (y/n)");
+						printf("\nSwitch piece? (y/n) ");
 						char input;
-						scanf("%c\n", &input);
+						scanf(" %c", &input);
 						if(input == 'y' || input == 'Y'){
 							printf("\nreturning to piece selection\n");
 							printBoard();
 							return playerMove(player);
 						}
 					}
-
 					printf("\ninvalid, check again :");
 				}
-
 			}
 
 
