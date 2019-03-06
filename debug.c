@@ -21,8 +21,7 @@ void debug(){ // not recommended, may not work
 	//colordemo();
 	//getch();
 	//debugboard();
-	//printBoard();
-	//playerMove(0);
+	//play(0,0);
 	//getch();
 
 	//checkAllMoves(6, 0);
@@ -36,7 +35,7 @@ void debug(){ // not recommended, may not work
 
 void debugboard(){
 	board[3][3] = 5;
-	board[3][4] = 6;
+	board[4][4] = 1;
 	board[3][5] = 11;
 	/*
 	board[][] = ;
@@ -45,4 +44,12 @@ void debugboard(){
 	board[][] = ;
 	board[][] = ;
 	*/
+}
+
+int importBoard(){
+	printf("\n Choose file to open");
+	char * file = "";
+	scanf("\n", &file);
+	//fopen(file);
+
 }

@@ -36,13 +36,14 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 		return 0;
 	}
 	if(owner(moveX, moveY)==player) return 0;//check if slaying own piece
-
 	if (content == 0) {//shouldn't happen
 		Color(0,4);//KRED
 		printf("\nempty square\n");
 		Color(0,15);//nocolor
 		return 0;
 	}
+
+	//check if move leads to check for current play, then deny move
 
 	int piece = content%6;//ingores player
 	int deltaX = moveX-posX;//for checking moves
@@ -60,9 +61,8 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 					}
 				return 0;
 				}
-
 			}
-			else if (deltaX == 1 || deltaY == -1) {//check for enemy piece taking
+			if (Betrag(deltaX) == 1 && ((player==0 && deltaY==1) || (player==1 && deltaY==-1)) ) {//check for enemy piece taking
 				if (board[moveX][moveY] != 0 && owner(moveX, moveY) != player) return 1; //slay piece if move valid, piece there and not your piece
 			}
 			return 0;
@@ -70,7 +70,11 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 		case 5://king 5 11
 			if((-1<=deltaX && deltaX<=1) && (-1<=deltaY && deltaY<=1)){
 				return 1;
-			} else return 0;
+			}
+			if (deltaY==0) {
+				/* code */
+			}
+			return 0;
 			break;
 		case 4://queen 4 10
 				//other option much easier!  rook+bishop as if-else

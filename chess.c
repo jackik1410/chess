@@ -159,43 +159,44 @@ void ClearScreen(){
 
 }
 
+//will be editable in settings to properly identify players
+char player0name[20] = "White";//in here like this to make it editable during runtime
+char player1name[20] = "Black";
+const char * PlayerName(int player){//will become configurable via string input
+	switch (player) {
+		case 0:
+			return player0name;
+			break;
+		case 1:
+			return player1name;
+			break;
+		default:
+			ErrorMsg(__COUNTER__);//wrong player argument
+			return "undefined";
+	}
+}
+
 int Status = 0;//will be updated every turn and compared to the one before the register check and checkmate
 int checkBoard(int turn){
-	return 0;//just forr debugging or else...
+	//return 0;//just forr debugging or else...
 	int LastStatus = Status;
-	for (int y = 0; y < rangeY; y++) {
+	for (int y = 0; y < rangeY; y++) {//looking for the king pieces..
 		for (int x = 0; x < rangeY; x++) {
 			if(board[x][y]==5 || board[x][y]==11){//check for check and compare to last status for checkmate and game over
-				for (int a = 0; a < rangeY; a++) {
+				for (int a = 0; a < rangeY; a++) {//looking for pieces that can attack the king pieces
 					for (int b = 0; b < rangeY; b++) {
-						if ((owner(x,y)+1)%2==owner(a,b)) if(1==checkAllMoves(board[a][b], (owner(x,y)+1)%2, a, b, x, y)) {
-							Color(2,14);
-							printf("\nIT WORKS?!?! %d %d : %d %d",x,y,a,b);
+						if ((owner(x,y)+1)%2==owner(a,b)) if(1==checkAllMoves(board[a][b], (owner(x,y)+1)%2, a, b, x, y)) {//schach!!!
+							//compare to last
+							Color(4,15);
+							printf("Check for player %d, %s", owner(x,y), PlayerName(owner(x,y)));
+							Color(0,15);
+
 						}
 					}
 				}
 			}
 		}
 	}
-}
-
-void skiphSpaces(int rep){
-	if(rep==0) return ;
-	if(rep == 2) {
-
-		for(int x=0; x<rangeX; x++) {
-		printf("------");
-	}//printing line breaker
-	//printf("\n");
-
-	} else {
-		printf("\n|");
-		for(int x=0; x<rangeX; x++){
-			printf("     |");
-		}
-		printf("\n");
-	}
-	skiphSpaces(rep-1);
 }
 
 void printChar(int piece){//player color already applied!
@@ -232,6 +233,7 @@ void printChar(int piece){//player color already applied!
 int divider=0; //dividers on or off, will be configurable
 int coords=1; //whether to show the coordinates
 void printBoard(){
+	printf("\n");//safety
 	if (coords==1) {
 		printf("  ");
 		for (int x = 0; x < rangeY; x++) {
@@ -320,16 +322,16 @@ void credits(){
 	#elif defined(_WIN32) || defined(WIN32)
 		printf("Windows");
 	#endif
-	printf("\n\n Written and done stuff and so on by Jack ");
+	printf("\n\n Written and stuff done and so on by Jack ");
 	Color(0,15);
 	char null;
-	scanf("%c", &null);
+	scanf(" %c", &null);
 }
 
 int playerMove(int player){
 	printf("choose piece: ");
 	int inputx=-1; int inputy=-1;
-	while(2 != scanf("%d,%d", &inputx, &inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy || owner(inputx, inputy)!=player){ //check for input validity as long as
+	while(2 != scanf(" %d,%d", &inputx, &inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy || owner(inputx, inputy)!=player){ //check for input validity as long as
 		//not valid coordinates, out of bounds or not own
 		Color(0,4);//KRED
 		printf("\nnot a valid piece that you own");
@@ -339,11 +341,11 @@ int playerMove(int player){
 	//better save than sorry, checking the second time
 	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){//in bounds
 		if(owner(inputx, inputy)==player){//checking ownership
-			printf("\nchoose destination (x,y): ");
+			printf("choose destination (x,y): ");
 			int xpos=inputx; int ypos=inputy;
 			inputx=-1; inputy=-1;//resetting for new input to not trigger returning to selection
 			while (0==checkAllMoves(board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
-				while (2 != scanf("%d,%d", &inputx, &inputy) || player == owner(inputx, inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy) {//second check includes check for no movment
+				while (2 != scanf(" %d,%d", &inputx, &inputy) || player == owner(inputx, inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy) {//second check includes check for no movment
 					if(inputx==xpos && inputy==ypos){//opens dialog to go back
 						//might add actual commands in the future to access menu and other things in the future
 						printf("\nSwitch piece? (y/n) ");
@@ -378,64 +380,68 @@ int GameOver(int Status){
 	return Status;//makes no sense right now... but i could make some operations with it here before sending it back...
 }
 
-//will be editable in settings to properly identify players
-char player0name[20] = "White";//in here like this to make it editable during runtime
-char player1name[20] = "Black";
-const char * PlayerName(int player){//will become configurable via string input
-	switch (player) {
-		case 0:
-			return player0name;
-			break;
-		case 1:
-			return player1name;
-			break;
-		default:
-			ErrorMsg(__COUNTER__);//wrong player argument
-			return "undefined";
-	}
-}
-
 int play(int player, int numTurns){
-	ClearScreen();
 	Color(0,15);
-	printf("player %d, %s\n", player, PlayerName(player));
+	printf("player %d, %s           ", player, PlayerName(player));
+	checkBoard(player);//checks for status, such as checkmate
 	Color(0,15);//nocolor
 	printBoard();
-	printf("\n Your Move! (x,y)\n");
+	printf("Your Move! (x,y)\n");
 	playerMove(player);
 	checkBoard(player);//checks for status, such as checkmate
+	ClearScreen();
 	if(Status!=0) 	return GameOver(Status);
 
 	return play((player + 1) % playernum, numTurns + 1); //may not use numTurns, but would be a nice feature for stats
 }
 
+int Rochade0 = 0;//
+int Rochade1 = 0;
 void beginPlay(int a, int b){// will become settings for the ai and player
 	for (int n = 0; n < playernum; n++) {
-		PlayerScores[n] = 0;
+		PlayerScores[n] = 0;//reset scores for all players
 	}
 	SetBoard();
 	play(0,0);
 }
 
 void settings(){
+	ClearScreen();
+	Color(1, 15);
 	int input;
-	Color(0, 15);
-	printf("settings:\n");
-	while(1!=scanf("%d\n", &input) || 0!=input){
+	while(0!=input){
+		printf("settings:\n\n 0. RETURN\n ");
+		printf("7. Divider: %d\n 8. Show coordinates: %d\n 9. \n\n", divider, coords);
+		scanf(" %d", &input);
 		switch (input) {
+			case 0://breaks the while loop
+				break;
 			case 1:
+				break;
+			case 2:
+				break;
+			case 3:
+				break;
+				///////////////////////
+			case 7:
+				divider = (divider + 1)%2;
+				break;
+			case 8:
+				coords = (coords + 1)%2;
+				break;
+			case 9:
 				break;
 			default:
 				printf("\n didn't understand that, try again\n");
 		}
+		ClearScreen();
 	}
-	ClearScreen();
 }
 
 int menu(){
 	Color(0,15);
 	printf("\n\n modular Chess:\n\n");
-	printf(" 1. play 2player mode\n 8. settings \n 9. credits \n press 0 to quit");
+	printf(" 1. play 2player mode\n 2. play as white agains ai(planned)\n 3. play as white agains ai(planned)\n 8. settings \n 9. credits \n press 0 to quit");
 	int input;
 	int output = 0;
 	while(output==0){
@@ -448,39 +454,36 @@ int main(){
 	Init();
 	debug();// solely for testing purposes
 	ClearScreen();
-start:;
 	int input;
-	input = menu();
-	switch (input){
-		case 0:
-			goto eof;
-			break;
- 		case 1:
- 			beginPlay(0, 0);
- 			break;
- 		/*
- 		case 2: // not sensical! white always starts! only implement when using an C-player
- 			//play(1, 0);
- 			break;
- 		*/
- 		case 8:
-			ClearScreen();
-			printf("Not yet coded and stuff, but there are some little things planned...\n");
-			printf("such as custom player colors or so\n");
-			goto start;
- 			break;
- 		case 9:
- 			credits();
- 			goto start;
- 			break;
-
- 		default:
-			Color(0,4);//KRED
- 			printf("\nnot an option ^^\n");
-			Color(0,15);//nocolor
- 			goto start;
+	while (0!=input) {
+		input = menu();
+		switch (input){
+			case 0:
+				goto eof;
+				break;
+	 		case 1:
+	 			beginPlay(0, 0);
+	 			break;
+	 		/*
+	 		case 2: // not sensical! white always starts! only implement when using an C-player
+	 			//play(1, 0);
+	 			break;
+	 		*/
+	 		case 8:
+				settings();
+	 			break;
+	 		case 9:
+	 			credits();
+	 			break;
+	 		default:
+				Color(0,4);//KRED
+	 			printf("\nnot an option ^^\n");
+				Color(0,15);//nocolor
+		}
+		ClearScreen();
 	}
 
 eof:
 	printf("BYE\n");
+	getch();
 }
