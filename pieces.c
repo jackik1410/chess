@@ -21,7 +21,8 @@ int owner(int x, int y) {
 		return 1;
 	}
 
-	ErrorMsg(__COUNTER__);
+	ErrorMsg(__COUNTER__, "error checking piece ownership");
+	printf("%d %d", x, y);
 	return 3;
 }
 
@@ -32,7 +33,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 		Color(0,4);//KRED
 		printf("\nnot your piece!\n");
 		Color(0,15);//nocolor
-		ErrorMsg(__COUNTER__);//probably artificial input, such as an error in checkBoard()
+		ErrorMsg(__COUNTER__, "unknown error");//probably artificial input, such as an error in checkBoard()
 		return 0;
 	}
 	if(owner(moveX, moveY)==player) return 0;//check if slaying own piece
@@ -45,11 +46,10 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 
 	//check if move leads to check for current play, then deny move
 
-	int piece = content%6;//ingores player
 	int deltaX = moveX-posX;//for checking moves
 	int deltaY = moveY-posY;
 
-	switch (piece) { //checking moves for all pieces
+	switch (content%6) { //checking moves for all pieces, ignoring player
 					//remember checking for path for other pieces and collisions!!!
 		case 0://pawn 6 12
 			if (deltaX == 0) {
@@ -123,22 +123,20 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 		default:
 			Color(0,4);//KRED
 			printf("\n error checking move! (piece not found)\n");
-			printf("piece num = %d\n", piece%6);
-			ErrorMsg(__COUNTER__);
+			printf("piece num = %d\n", content);
+			ErrorMsg(__COUNTER__, "unknown error");
 			Color(0,15);//nocolor
 			return 0;
 	}
-	Color(0,4);//KRED
-	printf("\n error checking move!\n");
-	Color(0,15);//nocolor
+	ErrorMsg(__COUNTER__,"error checking move!");
 	return 0;
 
 }
 
 int PlayerScores[2];//number will be variable later using playernum
 //is set 0 before a match
-void PieceScore(int piece, int player){//maybe later used for AI
-	if (piece!=0&&piece<=12) {//check if valid piece
+int PieceScore(int piece){//maybe later used for AI
+	if (piece>0&&piece<=12) {//check if not empty square
 		int score = 0;
 		switch (piece%6) {
 			case 0://pawn
@@ -160,8 +158,17 @@ void PieceScore(int piece, int player){//maybe later used for AI
 				score = 10000;//infty really, but meh
 				break;
 			default:
-				ErrorMsg(__COUNTER__);
+				ErrorMsg(__COUNTER__, "faulty piece or no score for piece");
 		}
-		PlayerScores[player] += score;
-	} else ErrorMsg(__COUNTER__);
+		return score;
+	} else return 0;
+}
+
+void MovePiece(int x, int y, int a, int b){
+	if(board[a][b]!=0){//no score if empty
+		if(owner(x,y)==owner(a,b)) ErrorMsg(__COUNTER__, "slaying own piece!");//safety
+		PlayerScores[owner(x,y)] += PieceScore(board[a][b]); //attributes score
+	}
+	board[a][b]=board[x][y];
+	board[x][y]=0;
 }

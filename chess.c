@@ -86,9 +86,9 @@ int board[rangeX][rangeY];
 
 //debug();
 
-void ErrorMsg(int reason){
+void ErrorMsg(int num, char* reason){
 	Color(0,4);//KRED
-	printf("\nAn ERROR HAS OCCURED, CODE: %d  GAME WILL CONTINUE\n", reason);
+	printf("\nAn ERROR HAS OCCURED, CODE: %d, %s\n", num, reason);
 	//
 	getch();
 	Color(0,15);//nocolor
@@ -106,7 +106,6 @@ int Betrag(int zahl){
 
 
 int SetBoard(){
-
 	for(int y=0; y<rangeY; y++){
 		if(y>2&&y<6) continue;
 		if(y==1){//placing pawns here
@@ -144,7 +143,7 @@ int SetBoard(){
 					} else if (x>(rangeX/2)) {
 						board[x][y]=8-x+6*player;
 					} else {
-						ErrorMsg(__COUNTER__);//wrong board size?
+						ErrorMsg(__COUNTER__, "unknown error");//wrong board size?
 					}
 				}
 				//board[x][y] = ...
@@ -171,7 +170,7 @@ const char * PlayerName(int player){//will become configurable via string input
 			return player1name;
 			break;
 		default:
-			ErrorMsg(__COUNTER__);//wrong player argument
+			ErrorMsg(__COUNTER__, "unknown error");//wrong player argument
 			return "undefined";
 	}
 }
@@ -223,7 +222,7 @@ void printChar(int piece){//player color already applied!
 				printf("K");
 				break;
 			default:
-				ErrorMsg(__COUNTER__);//wrong argument or wrong value in array
+				ErrorMsg(__COUNTER__, "unknown error");//wrong argument or wrong value in array
 				break;
 		}
 	}
@@ -328,6 +327,36 @@ void credits(){
 	scanf(" %c", &null);
 }
 
+int ShowAiThoughts = 1;//displays info about ai during move
+int AiMove(int aiplayer){
+	int af, bf, cf, df =-1; //final positions
+	int lastPlayerScore = 0;
+	for (int a = 0; a < rangeY; a++) {
+		for (int b = 0; b < rangeX; b++) {
+			if (owner(a,b)!=aiplayer) continue;//can only move own pieces
+			if (ShowAiThoughts==1) printf("\n found own piece at %d,%d  ", a, b);
+			for (int c = 0; c < rangeY; c++) {
+				for (int d = 0; d < rangeX; d++) {
+					if(owner(c,d)!=aiplayer && (PieceScore(board[c][d])+rand()%3-1)>lastPlayerScore && 1==checkAllMoves(board[a][b], aiplayer, a, b, c, d)){//save move if valid and most points
+//rand()%2-1 is there to also allow non slaying moves and provide unpredictability without sacrificing "intelligence"
+						if (ShowAiThoughts==1) printf("can slay piece with value %d at %d %d", PieceScore(board[c][d]), c, d);
+						lastPlayerScore = PieceScore(board[c][d]);
+						af = a;
+						bf = b;
+						cf = c;
+						df = d;
+					}
+				}
+			}
+		}
+	}
+	if (af==-1 || bf==-1 || cf==-1 || df==-1) {
+		ErrorMsg(__COUNTER__, "Ai failed to find good move");
+	}
+	MovePiece(af, bf, cf, df);
+	return 1;
+}
+
 int playerMove(int player){
 	printf("choose piece: ");
 	int inputx=-1; int inputy=-1;
@@ -361,16 +390,12 @@ int playerMove(int player){
 					printf("\ninvalid, check again :");
 				}
 			}
-
-
-
 			//if succeded, execute movement
-			board[inputx][inputy]=board[xpos][ypos];
-			board[xpos][ypos]=0;
+			MovePiece(xpos, ypos, inputx, inputy);
 			return 1;
 		}
 	}
-	ErrorMsg(__COUNTER__);
+	ErrorMsg(__COUNTER__, "unknown error");
 	return 0;
 }
 
@@ -380,29 +405,40 @@ int GameOver(int Status){
 	return Status;//makes no sense right now... but i could make some operations with it here before sending it back...
 }
 
-int play(int player, int numTurns){
+int play(int player, int numTurns, int aiplayer){
 	Color(0,15);
 	printf("player %d, %s           ", player, PlayerName(player));
 	checkBoard(player);//checks for status, such as checkmate
 	Color(0,15);//nocolor
 	printBoard();
 	printf("Your Move! (x,y)\n");
-	playerMove(player);
+	if (player==aiplayer) {
+		AiMove(player);
+	} else {
+		playerMove(player);
+	}
 	checkBoard(player);//checks for status, such as checkmate
 	ClearScreen();
 	if(Status!=0) 	return GameOver(Status);
 
-	return play((player + 1) % playernum, numTurns + 1); //may not use numTurns, but would be a nice feature for stats
+	if(numTurns==-1) return 0;//debuging and inital moves
+	return play((player + 1) % playernum, numTurns + 1, aiplayer); //may not use numTurns, but would be a nice feature for stats
 }
 
-int Rochade0 = 0;//
+int Rochade0 = 0;//set 1 if done, was in check or moves through check
 int Rochade1 = 0;
-void beginPlay(int a, int b){// will become settings for the ai and player
+void beginPlay(int player, int ai){// will become settings for the ai and player
+	Rochade0 = 0; Rochade1 = 0;
 	for (int n = 0; n < playernum; n++) {
 		PlayerScores[n] = 0;//reset scores for all players
 	}
 	SetBoard();
-	play(0,0);
+	int turns = 0;
+	if (player!=0) {
+		turns = 1;//will be calculated if more than 2 players!
+		play(0, -turns, ai);
+	}
+	play(player, turns, ai);
 }
 
 void settings(){
@@ -441,7 +477,7 @@ void settings(){
 int menu(){
 	Color(0,15);
 	printf("\n\n modular Chess:\n\n");
-	printf(" 1. play 2player mode\n 2. play as white agains ai(planned)\n 3. play as white agains ai(planned)\n 8. settings \n 9. credits \n press 0 to quit");
+	printf(" 1. play 2player mode\n 2. play as white agains ai(planned)\n 3. play as black agains ai(planned)\n 8. settings \n 9. credits \n press 0 to quit");
 	int input;
 	int output = 0;
 	while(output==0){
@@ -462,13 +498,14 @@ int main(){
 				goto eof;
 				break;
 	 		case 1:
-	 			beginPlay(0, 0);
+	 			beginPlay(0, -1);
 	 			break;
-	 		/*
-	 		case 2: // not sensical! white always starts! only implement when using an C-player
-	 			//play(1, 0);
+	 		case 2:
+	 			beginPlay(0, 1);
 	 			break;
-	 		*/
+			case 3:
+				beginPlay(1, 1);
+				break;
 	 		case 8:
 				settings();
 	 			break;
