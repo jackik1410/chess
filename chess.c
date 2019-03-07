@@ -198,31 +198,32 @@ int checkBoard(int turn){
 	}
 }
 
-void printChar(int piece){//player color already applied!
+char * printChar(int piece){//player color already applied!
 	if(piece==0) {
-		printf(" ");
-	} else{
+		return " ";
+	} else {
 		switch (piece%6) {//printing piece char
 			case 0://pawn 6 12
-				printf("P");
+				return "P";
 				break;
 			case 1://Rook 1 7
-				printf("R");
+				return "R";
 				break;
 			case 2://Knight 3 9 or Springer
-				printf("S");
+				return "S";
 				break;
 			case 3://Bishop 2 8
-				printf("B");
+				return "B";
 				break;
 			case 4://Queen 4 10
-				printf("Q");
+				return "Q";
 				break;
 			case 5://King 5 11
-				printf("K");
+				return "K";
 				break;
 			default:
 				ErrorMsg(__COUNTER__, "unknown error");//wrong argument or wrong value in array
+				return "unknown";
 				break;
 		}
 	}
@@ -231,7 +232,7 @@ void printChar(int piece){//player color already applied!
 
 int divider=0; //dividers on or off, will be configurable
 int coords=1; //whether to show the coordinates
-void printBoard(){
+void printBoard(int x, int y){ //coords for showing possible moves
 	printf("\n");//safety
 	if (coords==1) {
 		printf("  ");
@@ -279,7 +280,7 @@ void printBoard(){
 					if (board[x][y]!=0) {//text color
 						if (owner(x, y)==0) {
 							fr = CPlayer0;
-							if(fr==bg) fr = AltWhiteColor;
+							if(fr==bg) fr = AltWhiteColor;//just in case there aren't enough colors for players and board
 						}
 						else if (owner(x, y) == 1) {
 							fr = CPlayer1;
@@ -291,7 +292,7 @@ void printBoard(){
 					printf("  ");
 
 					if (n==1) {
-					printChar(board[x][y]);//print piece
+					printf("%s", printChar(board[x][y]) );//print piece
 				} else printf(" ");
 
 					printf("  ");
@@ -353,6 +354,7 @@ int AiMove(int aiplayer){
 	if (af==-1 || bf==-1 || cf==-1 || df==-1) {
 		ErrorMsg(__COUNTER__, "Ai failed to find good move");
 	}
+	if(ShowAiThoughts==1) printf("\n Moving piece %s from %d,%d to %d,%d\n", printChar(board[af][bf]), af, bf, cf, df);
 	MovePiece(af, bf, cf, df);
 	return 1;
 }
@@ -382,12 +384,12 @@ int playerMove(int player){
 						scanf(" %c", &input);
 						if(input == 'y' || input == 'Y'){
 							printf("\nreturning to piece selection\n");
-							printBoard();
+							printBoard( -1, -1);
 							return playerMove(player);
 						}
 						printf("\n canceled\n");
 					}
-					printf("\ninvalid, check again :");
+					printf("\ninvalid, check again: ");
 				}
 			}
 			//if succeded, execute movement
@@ -410,13 +412,17 @@ int play(int player, int numTurns, int aiplayer){
 	printf("player %d, %s           ", player, PlayerName(player));
 	checkBoard(player);//checks for status, such as checkmate
 	Color(0,15);//nocolor
-	printBoard();
+	printBoard(-1, -1);
 	printf("Your Move! (x,y)\n");
+	//AiMove(player);
+	//getch();
+
 	if (player==aiplayer) {
 		AiMove(player);
 	} else {
 		playerMove(player);
 	}
+
 	checkBoard(player);//checks for status, such as checkmate
 	ClearScreen();
 	if(Status!=0) 	return GameOver(Status);

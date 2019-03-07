@@ -21,8 +21,7 @@ int owner(int x, int y) {
 		return 1;
 	}
 
-	ErrorMsg(__COUNTER__, "error checking piece ownership");
-	printf("%d %d", x, y);
+	ErrorMsg(__COUNTER__, "error checking piece ownership at ");	printf("%d %d \n", x, y);
 	return 3;
 }
 
@@ -76,7 +75,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 			}
 			return 0;
 			break;
-		case 4://queen 4 10
+		case 4://queen 4 10, check rook and bishop for movment
 				//other option much easier!  rook+bishop as if-else
 				//maybe define them as separate functions to do so?
 				//or is there a better way to loop it?
@@ -87,13 +86,11 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 			break;
 		case 1://rook 1 7
 			if((deltaX==0 && deltaY!=0) || (deltaY==0 && deltaX!=0)) {//check if movement is only along 1 axis
-				int delta=deltaX+deltaY;
-				for (int n = 1; n < delta; n++) {//check for path
-					if(board[deltaX/delta * n][deltaY/delta * n]==0){
-						continue;
-					} else return 0;
+				int delta=deltaX+deltaY;//equals movement, as one of them is 0
+				for (int n = 1; n < delta; n++) {//check for path but not final position
+					if(board[deltaX/delta * n][deltaY/delta * n]!=0) return 0;
 				}
-				if(owner(moveX, moveY)==player) return 0;
+				if(owner(moveX, moveY)==player) return 0; //can't move if own piece, only if empty or enemy
 				return 1;
 			} else return 0;
 			break;
@@ -107,18 +104,16 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 			} else return 0;
 			break;
 		case 3://bishop 3 9
-			if(Betrag(deltaX)==Betrag(deltaY)){//check collision
+			if(Betrag(deltaX)==Betrag(deltaY) && deltaX!=0){//check basic validity
 				int dx = deltaX / Betrag(deltaX); //needed for iterative square check
 				int dy = deltaY / Betrag(deltaY);
 				int distance = Betrag(deltaX);
-				for (int n = 1; n <= distance; n++) {
-					if (board[dx*n][dy*n] == 0) continue;
-					if (n == distance && owner(dx*n, dy*n) != player) return 1;//only slay pieces if on final location and not your piece!
-					return 0;
+				for (int n = 1; n < distance; n++) {
+					if (board[dx*n + posX][dy*n + posY] != 0) return 0; //cancel on finding obstacle (not include final position)
 				}
-
-				return 1;//passed checks
-			} else return 0;//invalid move
+				if (owner(moveX, moveY) != player) return 1;//only slay pieces if final location not own piece!
+			}
+			return 0;//invalid move
 			break;
 		default:
 			Color(0,4);//KRED

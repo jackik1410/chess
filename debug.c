@@ -18,10 +18,9 @@ void debug(){ // not recommended, may not work
 	//put your code here and it will run before anything else
 	//system("COLOR 9C");
 
-	for (int i = 0; i < 20; i++) {
-		printf("%d\n", rand()%2-1);
-	}
-	//colordemo();
+	//for (int i = 0; i < 20; i++) printf("%d\n", rand()%2-1);
+
+	colordemo();
 	//getch();
 	//debugboard();
 	//play(0,0);
