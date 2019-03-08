@@ -25,7 +25,7 @@ void debug(){ // not recommended, may not work
 	//debugboard();
 	//printBoard(3,4,owner(3, 4));
 	//getch();
-	//splay(0,0,-1);
+	//play(0,0,-1);
 	//getch();
 
 	//checkAllMoves(6, 0);
@@ -39,6 +39,7 @@ void debug(){ // not recommended, may not work
 
 void debugboard(){
 	board[3][0] = 11;
+	board[3][3] = 12;
 	board[3][4] = 4;
 	board[3][7] = 5;
 	/*

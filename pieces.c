@@ -81,13 +81,16 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 			break;
 		case 1://rook 1 7
 			if((deltaX==0 && deltaY!=0) || (deltaY==0 && deltaX!=0)) {//check if movement is only along 1 axis
-				int delta=deltaX+deltaY;//equals movement, as one of them is 0
+				int delta=Betrag(deltaX+deltaY);//equals movement, as one of them is 0
+				//printf("\nBetrag = %d", delta);
 				for (int n = 1; n < delta; n++) {//check for path but not final position
-					if(board[deltaX/delta * n][deltaY/delta * n]!=0) return 0;
+					if(board[deltaX/delta * n + posX][deltaY/delta * n + posY]!=0) return 0;
+					//printf("  n = %d, x= %d, y= %d\n", n, deltaX/delta * n + posX, deltaY/delta * n + posY);
 				}
 				if(owner(moveX, moveY)==player) return 0; //can't move if own piece, only if empty or enemy
 				return 1;
-			} else return 0;
+			}
+			return 0;
 			break;
 		case 2://knight = Springer  2 8
 			if( (Betrag(deltaX)==1 && Betrag(deltaY)==2) || (Betrag(deltaX)==2 && Betrag(deltaY)==1) ){

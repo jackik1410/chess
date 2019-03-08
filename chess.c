@@ -391,7 +391,13 @@ int playerMove(int player){
 	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){//in bounds
 		if(owner(inputx, inputy)==player){//checking ownership
 			printBoard(inputx, inputy, player);
-			printf("choose destination (x,y): ");
+			int possMoves = 0;
+			for (int y = 0; y < rangeY; y++) {
+				for (int x = 0; x < rangeX; x++) {
+					possMoves = possMoves + checkAllMoves(board[inputx][inputy], player, inputx, inputy, x, y);
+				}
+			}
+			printf("possible moves = %d, choose destination (x,y): ", possMoves);
 			int xpos=inputx; int ypos=inputy;
 			inputx=-1; inputy=-1;//resetting for new input to not trigger returning to selection
 			while (0==checkAllMoves(board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
