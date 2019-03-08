@@ -198,7 +198,7 @@ int checkBoard(int turn){
 	}
 }
 
-char * printChar(int piece){//player color already applied!
+char * PieceName(int piece){//player color already applied!
 	if(piece==0) {
 		return " ";
 	} else {
@@ -216,7 +216,7 @@ char * printChar(int piece){//player color already applied!
 				return "B";
 				break;
 			case 4://Queen 4 10
-				return "Q";
+				return "Queen";
 				break;
 			case 5://King 5 11
 				return "K";
@@ -229,7 +229,8 @@ char * printChar(int piece){//player color already applied!
 	}
 }
 
-
+int squareW = 5;//height and width, just affects visuals
+int squareH = 3;
 int divider=0; //dividers on or off, will be configurable
 int coords=1; //whether to show the coordinates
 void printBoard(int x, int y){ //coords for showing possible moves
@@ -245,8 +246,8 @@ void printBoard(int x, int y){ //coords for showing possible moves
 		printf("\n");
 	}
 	for(int y=0; y<rangeY; y++){
-		for(int n=0; n<3; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
-			if (coords==1 && n==1) {
+		for(int n=0; n<squareH; n++){//1 squre needs 3 lines, 2 lines blank and 1 with the pieces
+			if (coords==1 && n==(int)(squareH-1)/2) {
 				printf(" %d", y);
 			} else {
 				printf("  ");
@@ -276,7 +277,7 @@ void printBoard(int x, int y){ //coords for showing possible moves
 				}
 
 				int fr;//player color
-				if(n==1){//line with actual pieces
+				if(n==(int)(squareH-1)/2){//line with actual pieces
 					if (board[x][y]!=0) {//text color
 						if (owner(x, y)==0) {
 							fr = CPlayer0;
@@ -289,13 +290,24 @@ void printBoard(int x, int y){ //coords for showing possible moves
 					}
 				} else fr = 15;
 					Color(bg, fr);
-					printf("  ");
 
-					if (n==1) {
-					printf("%s", printChar(board[x][y]) );//print piece
-				} else printf(" ");
-
-					printf("  ");
+					if (n==(int)(squareH-1)/2) {
+						char* name=PieceName(board[x][y]);
+						if (strlen(name)>squareW) ErrorMsg(__COUNTER__, "Piece name too long for colom width");
+						int leftSpacing = squareW-strlen(name);//howmuch space is not occupied with name
+						for (int m = 0; m < leftSpacing/2; m++) {
+							printf(" ");
+						}
+						leftSpacing=leftSpacing-leftSpacing/2;
+						printf("%s", name);//print piece
+						for (int m = 0; m < leftSpacing; m++) {
+							printf(" ");
+						}
+					} else {
+						for (int m = 0; m < squareW; m++) {
+							printf(" ");
+						}
+					}
 					Color(0,15);//nocolor
 					if(divider==1) printf("|");
 
@@ -354,7 +366,7 @@ int AiMove(int aiplayer){
 	if (af==-1 || bf==-1 || cf==-1 || df==-1) {
 		ErrorMsg(__COUNTER__, "Ai failed to find good move");
 	}
-	if(ShowAiThoughts==1) printf("\n Moving piece %s from %d,%d to %d,%d\n", printChar(board[af][bf]), af, bf, cf, df);
+	if(ShowAiThoughts==1) printf("\n Moving piece %s from %d,%d to %d,%d\n", PieceName(board[af][bf]), af, bf, cf, df);
 	MovePiece(af, bf, cf, df);
 	return 1;
 }
