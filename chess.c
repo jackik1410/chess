@@ -210,16 +210,16 @@ char * PieceName(int piece){//player color already applied!
 				return "R";
 				break;
 			case 2://Knight 3 9 or Springer
-				return "S";
+				return "Spr";
 				break;
 			case 3://Bishop 2 8
-				return "B";
+				return "Bis";
 				break;
 			case 4://Queen 4 10
 				return "Queen";
 				break;
 			case 5://King 5 11
-				return "K";
+				return "King";
 				break;
 			default:
 				ErrorMsg(__COUNTER__, "unknown error");//wrong argument or wrong value in array
@@ -233,7 +233,7 @@ int squareW = 5;//height and width, just affects visuals
 int squareH = 3;
 int divider=0; //dividers on or off, will be configurable
 int coords=1; //whether to show the coordinates
-void printBoard(int x, int y){ //coords for showing possible moves
+void printBoard(int xpiece, int ypiece, int player){ //coords for showing possible moves
 	printf("\n");//safety
 	if (coords==1) {
 		printf("  ");
@@ -264,17 +264,23 @@ void printBoard(int x, int y){ //coords for showing possible moves
 			}//var x reset here
 
 			if(divider==1) printf("|");
+
 			for(int x=0; x<rangeX; x++){//going through x coords
 				//Colorcoding
 				int bg;//actual color
-				switch ((x+y)%2) {//white or black square
-					case 0:
-						bg = WhiteTile;//both defined at top, because of potential text/bg color issues, for quick change
-						break;
-					case 1:
-						bg = BlackTile;//defined at top
-						break;
+				if(xpiece!=-1 && ypiece!=-1 && 1==checkAllMoves(board[xpiece][ypiece], player, xpiece, ypiece, x, y)) {
+					bg = 2;//green for valid position
+				} else {
+					switch ((x+y)%2) {//white or black square
+						case 0:
+							bg = WhiteTile;//both defined at top, because of potential text/bg color issues, for quick change
+							break;
+						case 1:
+							bg = BlackTile;//defined at top
+							break;
+					}
 				}
+
 
 				int fr;//player color
 				if(n==(int)(squareH-1)/2){//line with actual pieces
@@ -293,7 +299,7 @@ void printBoard(int x, int y){ //coords for showing possible moves
 
 					if (n==(int)(squareH-1)/2) {
 						char* name=PieceName(board[x][y]);
-						if (strlen(name)>squareW) ErrorMsg(__COUNTER__, "Piece name too long for colom width");
+						if (strlen(name)>squareW) ErrorMsg(__COUNTER__, "Piece name too long for colomn width");
 						int leftSpacing = squareW-strlen(name);//howmuch space is not occupied with name
 						for (int m = 0; m < leftSpacing/2; m++) {
 							printf(" ");
@@ -384,6 +390,7 @@ int playerMove(int player){
 	//better save than sorry, checking the second time
 	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){//in bounds
 		if(owner(inputx, inputy)==player){//checking ownership
+			printBoard(inputx, inputy, player);
 			printf("choose destination (x,y): ");
 			int xpos=inputx; int ypos=inputy;
 			inputx=-1; inputy=-1;//resetting for new input to not trigger returning to selection
@@ -396,7 +403,7 @@ int playerMove(int player){
 						scanf(" %c", &input);
 						if(input == 'y' || input == 'Y'){
 							printf("\nreturning to piece selection\n");
-							printBoard( -1, -1);
+							printBoard( -1, -1, player);
 							return playerMove(player);
 						}
 						printf("\n canceled\n");
@@ -424,7 +431,7 @@ int play(int player, int numTurns, int aiplayer){
 	printf("player %d, %s           ", player, PlayerName(player));
 	checkBoard(player);//checks for status, such as checkmate
 	Color(0,15);//nocolor
-	printBoard(-1, -1);
+	printBoard(-1, -1, player);
 	printf("Your Move! (x,y)\n");
 	//AiMove(player);
 	//getch();
@@ -445,18 +452,13 @@ int play(int player, int numTurns, int aiplayer){
 
 int Rochade0 = 0;//set 1 if done, was in check or moves through check
 int Rochade1 = 0;
-void beginPlay(int player, int ai){// will become settings for the ai and player
+void beginPlay(int ai){// will become settings for the ai and player
 	Rochade0 = 0; Rochade1 = 0;
 	for (int n = 0; n < playernum; n++) {
 		PlayerScores[n] = 0;//reset scores for all players
 	}
 	SetBoard();
-	int turns = 0;
-	if (player!=0) {
-		turns = 1;//will be calculated if more than 2 players!
-		play(0, -turns, ai);
-	}
-	play(player, turns, ai);
+	play(0, 0, ai);
 }
 
 void settings(){
@@ -499,7 +501,7 @@ int menu(){
 	int input;
 	int output = 0;
 	while(output==0){
-		 output = scanf("%d", &input);
+		 output = scanf(" %d", &input);
 	};
 	return input;
 }
@@ -516,13 +518,13 @@ int main(){
 				goto eof;
 				break;
 	 		case 1:
-	 			beginPlay(0, -1);
+	 			beginPlay(-1);
 	 			break;
 	 		case 2:
-	 			beginPlay(0, 1);
+	 			beginPlay(1);
 	 			break;
 			case 3:
-				beginPlay(1, 1);
+				beginPlay(0);
 				break;
 	 		case 8:
 				settings();

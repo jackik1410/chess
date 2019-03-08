@@ -20,10 +20,12 @@ void debug(){ // not recommended, may not work
 
 	//for (int i = 0; i < 20; i++) printf("%d\n", rand()%2-1);
 
-	colordemo();
+	//colordemo();
 	//getch();
 	//debugboard();
-	//play(0,0);
+	//printBoard(3,4,owner(3, 4));
+	//getch();
+	//splay(0,0,-1);
 	//getch();
 
 	//checkAllMoves(6, 0);
@@ -36,9 +38,9 @@ void debug(){ // not recommended, may not work
 }
 
 void debugboard(){
-	board[3][3] = 5;
-	board[4][4] = 1;
-	board[3][5] = 11;
+	board[3][0] = 11;
+	board[3][4] = 4;
+	board[3][7] = 5;
 	/*
 	board[][] = ;
 	board[][] = ;

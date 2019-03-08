@@ -76,12 +76,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 			return 0;
 			break;
 		case 4://queen 4 10, check rook and bishop for movment
-				//other option much easier!  rook+bishop as if-else
-				//maybe define them as separate functions to do so?
-				//or is there a better way to loop it?
-				if (1==checkAllMoves(1+6*player, player, posX, posY, moveX, moveY) || 1==checkAllMoves(3+6*player, player, posX, posY, moveX, moveY)){//check details for rook and bishop movement
-					return 1;
-				}
+				if (1==checkAllMoves(1+6*player, player, posX, posY, moveX, moveY) || 1==checkAllMoves(3+6*player, player, posX, posY, moveX, moveY)) return 1;//check details for rook and bishop movement
 				return 0;
 			break;
 		case 1://rook 1 7
