@@ -1,8 +1,3 @@
-//not used !
-void place(int piece, int player, int x, int y){
-	board[x][y] = piece + 6*player;//can be done directly anyway...
-}
-
 //backup plan:
 void CollisionAlert(){ //I know it's not worth it to be it's own function ^^
 	Color(0,4);//KRED
@@ -157,11 +152,63 @@ int PieceScore(int piece){//maybe later used for AI
 	} else return 0;
 }
 
-void MovePiece(int x, int y, int a, int b){
+
+//Kingposition[player][coordinate(x or y)]
+void findKings(int player, int *a, int *b){// run this if not up to date anymore
+	for (int x = 0; x < rangeX; x++) {
+		for (int y = 0; y < rangeY; y++) {
+			if(board[x][y]%6 == 5 && owner(x, y)==player){
+				*a = x;
+				*b = y;
+				printf("found King for player %d at %d,%d\n", player, x, y);
+				break;
+			}
+		}
+	}
+}
+
+int TryMove(int player, int depth){//for a more advanced ai
+
+	return TryMove( player, depth+1);
+}
+
+int MovePiece(int x, int y, int a, int b, int ifaiplayer){
 	if(board[a][b]!=0){//no score if empty
 		if(owner(x,y)==owner(a,b)) ErrorMsg(__COUNTER__, "slaying own piece!");//safety
-		PlayerScores[owner(x,y)] += PieceScore(board[a][b]); //attributes score
 	}
-	board[a][b]=board[x][y];
-	board[x][y]=0;
+	int slainpiece = board[a][b];
+	int slayingpiece = board[x][y];
+	int player = owner(x, y);
+
+		//moving pieces for now, can return them if not valid
+	board[a][b]=board[x][y];//moving
+	board[x][y]=0;//deleting
+
+	int Kingx; int Kingy; findKings(player, &Kingx, &Kingy);
+
+	for (int xtest = 0; xtest < rangeX; xtest++) {
+		for (int ytest = 0; ytest < rangeY; ytest++) {
+			if(owner(xtest, ytest)!=player) {
+				printf("not checked\n");
+			} else {
+				printf("could check? testing now\n");
+				if(1==checkAllMoves( board[xtest][ytest], owner(xtest, ytest), xtest, ytest, Kingx, Kingy)) {
+					printf("is checking!!!\n");
+					//returning pieces
+					board[a][b] = slainpiece;
+					board[x][y] = slayingpiece;
+					if (ifaiplayer!=1) {
+						Color(0, 4);
+						printf("Can not move, moving into check position\n");
+						Color(0, 15);
+					}
+					return 0;
+				}
+			}
+		}
+	}
+
+
+	//moving and changing score only after found not moving into check position
+	PlayerScores[owner(x,y)] += PieceScore(board[a][b]);//attributing score
 }

@@ -9,9 +9,9 @@ optionally research bitmaps~
 #include <stdlib.h>
 //#include <string.h>
 #include <stdint.h>
-//#include <graphic.h>//Doesn't work at all - doesn't seem to exist???
 #include <conio.h>
-#include <windows.h>   // what, we can't use them?
+#include <malloc.h>
+#include <windows.h>   // what, we can't use them? I'll just use it indirectly then
 
 // typedef struct move {
 //	int x;
@@ -373,7 +373,7 @@ int AiMove(int aiplayer){
 		ErrorMsg(__COUNTER__, "Ai failed to find good move");
 	}
 	if(ShowAiThoughts==1) printf("\n Moving piece %s from %d,%d to %d,%d\n", PieceName(board[af][bf]), af, bf, cf, df);
-	MovePiece(af, bf, cf, df);
+	MovePiece(af, bf, cf, df, 1); // doesn't yet work correctly
 	return 1;
 }
 
@@ -418,7 +418,7 @@ int playerMove(int player){
 				}
 			}
 			//if succeded, execute movement
-			MovePiece(xpos, ypos, inputx, inputy);
+			MovePiece(xpos, ypos, inputx, inputy, 0);
 			return 1;
 		}
 	}
@@ -473,10 +473,10 @@ void settings(){
 	int input;
 	while(0!=input){
 		printf("settings:\n\n 0. RETURN\n ");
-		printf("7. Divider: %d\n 8. Show coordinates: %d\n 9. \n\n", divider, coords);
+		printf(" 6. Show Ai thoughts: %d\n 7. Divider: %d\n 8. Show coordinates: %d\n 9. \n\n", ShowAiThoughts, divider, coords);
 		scanf(" %d", &input);
 		switch (input) {
-			case 0://breaks the while loop
+			case 0://breaks the while loop by itself
 				break;
 			case 1:
 				break;
@@ -484,7 +484,14 @@ void settings(){
 				break;
 			case 3:
 				break;
+			case 4:
+				break;
+			case 5:
+				break;
 				///////////////////////
+			case 6:
+				ShowAiThoughts = (ShowAiThoughts + 1)%2;
+				break;
 			case 7:
 				divider = (divider + 1)%2;
 				break;
@@ -500,36 +507,49 @@ void settings(){
 	}
 }
 
-int menu(){
+void Rainbow(char * string, int bg) {
+	int k = rand()%16;
+	for (int i = 0; i < strlen(string); i++) {
+		if ((i + k)%16==bg) k++;
+		Color(bg, (i + k)%16);
+		printf("%c", string[i]);
+	}
 	Color(0,15);
-	printf("\n\n modular Chess:\n\n");
-	printf(" 1. play 2player mode\n 2. play as white agains ai(planned)\n 3. play as black agains ai(planned)\n 8. settings \n 9. credits \n press 0 to quit");
-	int input;
-	int output = 0;
-	while(output==0){
-		 output = scanf(" %d", &input);
-	};
-	return input;
 }
 
 int main(){
 	Init();
 	debug();// solely for testing purposes
 	ClearScreen();
-	int input;
+	int input = 10;
 	while (0!=input) {
-		input = menu();
+		Color(0,15);
+		Rainbow("\n CHESS SIM FOR C-COURSE!\n\n", 0);
+		Color(15, 11);
+		printf("Do not write any non-number characters apart from the comma ',' symbol\n Also this Game works best with a num-pad\n");
+		Color(0, 15);
+		printf("\n 1. play 2player mode\n 2. play as white agains ai\n 3. play as black agains ai\n");
+		if (0) printf(" 4. view last board/Continue\n"); // to be edited
+		printf(" 8. settings \n 9. credits \n press 0 to quit\n");
+		int output = 0;
+		while(output==0){
+			 output = scanf(" %d", &input);
+		};
+
 		switch (input){
 			case 0:
 				goto eof;
 				break;
 	 		case 1:
+				ClearScreen();
 	 			beginPlay(-1);
 	 			break;
 	 		case 2:
+				ClearScreen();
 	 			beginPlay(1);
 	 			break;
 			case 3:
+				ClearScreen();
 				beginPlay(0);
 				break;
 	 		case 8:

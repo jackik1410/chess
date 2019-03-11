@@ -22,11 +22,12 @@ void debug(){ // not recommended, may not work
 
 	//colordemo();
 	//getch();
-	//debugboard();
 	//printBoard(3,4,owner(3, 4));
 	//getch();
-	//play(0,0,-1);
 	//getch();
+
+	//debugboard();
+	//play(0,0,-1);
 
 	//checkAllMoves(6, 0);
 
