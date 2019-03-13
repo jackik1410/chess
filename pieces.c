@@ -54,7 +54,10 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 					return 0;//collision
 				} else {
 					if((player == 0 && posY==6 && deltaY==-2) || (player==1 && posY==1 && deltaY==2)){//double move if not moved
-						return 1;
+						if (board[moveX][moveY]==0) {//checking for collision on normal move
+							return 1;//double move forward
+						}
+						return 0;//collision
 					}
 				return 0;
 				}
