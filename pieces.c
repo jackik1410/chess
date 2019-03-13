@@ -48,7 +48,10 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 		case 0://pawn 6 12
 			if (deltaX == 0) {
 				if( ((player == 0)&&(deltaY==-1)) || ((player == 1)&&(deltaY==1))){
-					return 1;//normal move forward
+					if (board[moveX][moveY]==0) {//checking for collision on normal move
+						return 1;//normal move forward
+					}
+					return 0;//collision
 				} else {
 					if((player == 0 && posY==6 && deltaY==-2) || (player==1 && posY==1 && deltaY==2)){//double move if not moved
 						return 1;
@@ -189,11 +192,11 @@ int MovePiece(int x, int y, int a, int b, int ifaiplayer){
 	for (int xtest = 0; xtest < rangeX; xtest++) {
 		for (int ytest = 0; ytest < rangeY; ytest++) {
 			if(owner(xtest, ytest)!=player) {
-				printf("not checked\n");
+				//printf("not checked\n");
 			} else {
-				printf("could check? testing now\n");
+				//printf("could check? testing now\n");
 				if(1==checkAllMoves( board[xtest][ytest], owner(xtest, ytest), xtest, ytest, Kingx, Kingy)) {
-					printf("is checking!!!\n");
+					//printf("is checking!!!\n");
 					//returning pieces
 					board[a][b] = slainpiece;
 					board[x][y] = slayingpiece;

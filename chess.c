@@ -179,23 +179,23 @@ int Status = 0;//will be updated every turn and compared to the one before the r
 int checkBoard(int turn){
 	//return 0;//just forr debugging or else...
 	int LastStatus = Status;
-	for (int y = 0; y < rangeY; y++) {//looking for the king pieces..
-		for (int x = 0; x < rangeY; x++) {
-			if(board[x][y]==5 || board[x][y]==11){//check for check and compare to last status for checkmate and game over
-				for (int a = 0; a < rangeY; a++) {//looking for pieces that can attack the king pieces
-					for (int b = 0; b < rangeY; b++) {
-						if ((owner(x,y)+1)%2==owner(a,b)) if(1==checkAllMoves(board[a][b], (owner(x,y)+1)%2, a, b, x, y)) {//schach!!!
-							//compare to last
-							Color(4,15);
-							printf("Check for player %d, %s", owner(x,y), PlayerName(owner(x,y)));
-							Color(0,15);
 
-						}
-					}
+	for (int player = 0; player < playernum; player++) {//checking for eachplayer just to be safe
+		int Kingx; int Kingy; findKings(player, &Kingx, &Kingy);//check for check and compare to last status for checkmate and game over
+		for (int a = 0; a < rangeY; a++) {//looking for pieces that can attack the king pieces
+			for (int b = 0; b < rangeY; b++) {
+				if ((player+1)%2==owner(a,b)) if(1==checkAllMoves(board[a][b], (player+1)%2, a, b, Kingx, Kingy)) {//schach!!!
+					//compare to last
+					Color(4,15);
+					printf(" Check for player %d, %s ", player, PlayerName(player));
+					Color(0,15);
+					return 1;//further specified somewhere else
 				}
 			}
 		}
 	}
+
+	return 0;
 }
 
 char * PieceName(int piece){//player color already applied!
@@ -432,6 +432,20 @@ int GameOver(int Status){
 	return Status;//makes no sense right now... but i could make some operations with it here before sending it back...
 }
 
+void AivsAI() {//mostly for debugging and fun, not an actual mode really...
+	int player=0;
+	int Status=0;
+	while (1) {
+		AiMove(player);
+		Color(0,15);
+		printf("player %d, %s           ", player, PlayerName(player));
+		Status = checkBoard(player);
+		printBoard( -1, -1, -1);//prints just the board, no other information like moves
+		getch();
+		player= (player +1)%playernum;
+	}
+}
+
 int play(int player, int numTurns, int aiplayer){
 	Color(0,15);
 	printf("player %d, %s           ", player, PlayerName(player));
@@ -551,6 +565,11 @@ int main(){
 			case 3:
 				ClearScreen();
 				beginPlay(0);
+				break;
+			case 4://hidden and mostly for debuging i guess
+				ClearScreen();
+				SetBoard();
+				AivsAI();
 				break;
 	 		case 8:
 				settings();
