@@ -34,7 +34,6 @@ void debug(){ // not recommended, may not work
 	//getch();
 	//ClearScreen();
 
-
 	//colordemo();
 }
 
@@ -50,12 +49,4 @@ void debugboard(){
 	board[][] = ;
 	board[][] = ;
 	*/
-}
-
-int importBoard(){
-	printf("\n Choose file to open");
-	char * file = "";
-	scanf("\n", &file);
-	//fopen(file);
-	return 1;//only if found and imported!!
 }

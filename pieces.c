@@ -166,7 +166,6 @@ void findKings(int player, int *a, int *b){// run this if not up to date anymore
 			if(board[x][y]%6 == 5 && owner(x, y)==player){
 				*a = x;
 				*b = y;
-				printf("found King for player %d at %d,%d\n", player, x, y);
 				break;
 			}
 		}

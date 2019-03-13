@@ -1,10 +1,3 @@
-/*
-changing pieces to values from 0(empty) to 12 (2 * 6 pieces)
-player = 0(if below 7 but !=0) || 1 (if >6)
-
-optionally research bitmaps~
-*/
-
 #include <stdio.h>
 #include <stdlib.h>
 //#include <string.h>
@@ -13,10 +6,6 @@ optionally research bitmaps~
 #include <malloc.h>
 #include <windows.h>   // what, we can't use them? I'll just use it indirectly then
 
-// typedef struct move {
-//	int x;
-//	int y;
-//};
 int playernum = 2;//not gonna be changeable too soon...
 
 //dimensions...
@@ -78,6 +67,11 @@ int board[rangeX][rangeY];
 	#define CPlayer0  "\x1B[37m" //color light grey
 	#define CPlayer1  "\x1B[30m" //color black
 	*/
+	void getch(){
+		const char* nothing;
+		scanf("%s\n", nothing);
+		//nothing comes from nothing and if you return to nothing, what have you lost? NOTHING!
+	}
 
 	void Color(int bg, int fr){//ignores bg color for now, i don't know how to set that sadly...
 
@@ -132,7 +126,6 @@ int SetBoard(){
 
 		if (y==0||y==7) {//valuable pieces
 			for(int x=0; x<rangeX; x++){
-				int b = Betrag(x -(rangeX / 2));
 				if (x==3||x==4){// pieces non central are mirrorablen King and Queen are not
 					//will replace hardcoded positions with ones relavtive to board size for variability later
 					board[3][y]= 4 + 6*player;//queen
@@ -159,8 +152,8 @@ void ClearScreen(){
 }
 
 //will be editable in settings to properly identify players
-char player0name[20] = "White";//in here like this to make it editable during runtime
-char player1name[20] = "Black";
+char *player0name = "White";//in here like this to make it editable during runtime
+char * player1name = "Black";
 const char * PlayerName(int player){//will become configurable via string input
 	switch (player) {
 		case 0:
@@ -578,6 +571,8 @@ void Rainbow(char * string, int bg) {
 	}
 	Color(0,15);
 }
+
+#include "extrafilefeatures.c" //for importing and exporting settings and stuff like that
 
 int main(){
 	Init();
