@@ -189,6 +189,42 @@ int checkBoard(int turn){
 					Color(4,15);
 					printf(" Check for player %d, %s ", player, PlayerName(player));
 					Color(0,15);
+					//checking if checkmate can be avoided
+					int testboard[rangeX][rangeY];
+					for (int x = 0; x < rangeX; x++) {
+						for (int y = 0; y < rangeY; y++) {
+							testboard[x][y]=board[x][y];//setting them the same, so that it can test testboard[][] instead of potentially chainging the actual board
+						}
+					}
+					for (int x = 0; x < rangeX; x++) {
+						for (int y = 0; y < rangeY; y++) {
+							if (owner(x,y)==player) {//finding the checked player's pieces
+							//trying all possible moves
+								for (int moveX = 0; moveX < rangeX; moveX++) {
+									for (int moveY = 0; moveY < rangeY; moveY++) {
+										if (owner(moveX,moveY)!=player && 1==checkAllMoves(testboard[x][y], player, x, y, moveX, moveY)) {//evaluate move if valid
+											//now checking if enemies pieces are still attacking the checked player's King
+
+											//for---
+											for (int x2 = 0; x2 < rangeX; x2++) {
+												for (int y2 = 0; y2 < rangeY; y2++) {
+													if (owner(x2,y2)!=player) {
+														findKings(player, &Kingx, &Kingy);
+														if (1==checkAllMoves(testboard[x2][y2], owner(x2,y2), x2, y2, Kingx, Kingy)) {
+															printf("GAMEOVER\n   Winner: %d", (player+1)%2);
+															//GAMEOVER();
+															return 1;
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+
 					return 1;//further specified somewhere else
 				}
 			}
@@ -356,14 +392,26 @@ int AiMove(int aiplayer){
 			if (ShowAiThoughts==1) printf("\n found own piece at %d,%d  ", a, b);
 			for (int c = 0; c < rangeY; c++) {
 				for (int d = 0; d < rangeX; d++) {
-					if(owner(c,d)!=aiplayer && (PieceScore(board[c][d])+rand()%3-1)>lastPlayerScore && 1==checkAllMoves(board[a][b], aiplayer, a, b, c, d)){//save move if valid and most points
+					if(owner(c,d)!=aiplayer && 1==checkAllMoves(board[a][b], aiplayer, a, b, c, d)){//save move if valid and most points, rather more points than previous
 //rand()%2-1 is there to also allow non slaying moves and provide unpredictability without sacrificing "intelligence"
+//may add points for future opportunities and deduct points for possible piece losses later
 						if (ShowAiThoughts==1) printf("can slay piece with value %d at %d %d", PieceScore(board[c][d]), c, d);
-						lastPlayerScore = PieceScore(board[c][d]);
-						af = a;
-						bf = b;
-						cf = c;
-						df = d;
+						int PieceValue = 0;
+						for (int e = 0; e < rangeY; e++) {
+							for (int f = 0; f < rangeX; f++) {//looking for enemie pieces that attack the position to move to
+								if (owner(e,f)!=aiplayer && checkAllMoves(board[e][f], owner(e,f), e, f, c, d)) {
+									PieceValue = PieceScore(board[a][b]); // because piece may be lost (consider cover chains later, with both allies and enemies, possible chain lenghts and values)
+								} else PieceValue = 0;//would not be lost
+							}
+						}
+						if (lastPlayerScore < (PieceScore(board[c][d]) + rand()%3-1 - PieceValue)) {
+							lastPlayerScore = PieceScore(board[c][d]);
+							//saving move
+							af = a;
+							bf = b;
+							cf = c;
+							df = d;
+						}
 					}
 				}
 			}
