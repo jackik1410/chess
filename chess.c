@@ -15,11 +15,6 @@ int playernum = 2;//not gonna be changeable too soon...
 //typedef unsigned uint8_t b[rangeX][rangeY]; //bitmap??
 int board[rangeX][rangeY];
 
-//TARGET SYSTEM, because some functions differ between OSes
-//#define TargetSystem 'Lin'
-#define TargetSystem 'Win'
-//#define TargetSystem "And" //i'm thinking about it, not sure if i should...
-
 #define CPlayer0  15
 #define CPlayer1  0
 #define WhiteTile 7
@@ -28,31 +23,8 @@ int board[rangeX][rangeY];
 #define AltWhiteColor 15
 #define AltBlackColor 8
 	//	colors:
-#if (TargetSystem=='Win')
-	void *getConsoleFunction(char *name);
-	BOOL (WINAPI *doSetConsoleTextAttribute)(HANDLE hConsoleOutput, WORD attr);
-	HANDLE hCon;
 
-	void Init(){
-		hCon=GetStdHandle(STD_OUTPUT_HANDLE);
-		doSetConsoleTextAttribute=getConsoleFunction("SetConsoleTextAttribute");
-	}
-
-	void *getConsoleFunction(char *name) {
-		static HMODULE kernel32=(HMODULE)0xffffffff;
-		if(kernel32==0) return NULL;
-			if((kernel32==(HMODULE)0xffffffff)){
-			kernel32=LoadLibrary("kernel32.dll");
-			if(kernel32==0)
-				return 0;
-			}
-		return GetProcAddress(kernel32,name);
-	}
-
-	void Color(int bg, int fr){
-		(*doSetConsoleTextAttribute)(hCon,(bg*16)+fr);
-	}
-#elif (TargetSystem=='Lin')
+#ifdef __unix__ //if linux
 	/*
 	#define KNRM  "\x1B[30m"
 	#define KRED  "\x1B[31m"
@@ -75,6 +47,31 @@ int board[rangeX][rangeY];
 
 	void Color(int bg, int fr){//ignores bg color for now, i don't know how to set that sadly...
 
+	}
+#elif defined(_WIN32) || defined(WIN32) //if windows (primary focus, colors work a LOT better here!)
+//the following small bit was copied from the internet, i had no other way to use colors apart from passing the windows console simple batch commands, which would change the color of the whole window, not just a few characters
+	void *getConsoleFunction(char *name);
+	BOOL (WINAPI *doSetConsoleTextAttribute)(HANDLE hConsoleOutput, WORD attr);
+	HANDLE hCon;
+
+	void Init(){
+		hCon=GetStdHandle(STD_OUTPUT_HANDLE);
+		doSetConsoleTextAttribute=getConsoleFunction("SetConsoleTextAttribute");
+	}
+
+	void *getConsoleFunction(char *name) {
+		static HMODULE kernel32=(HMODULE)0xffffffff;
+		if(kernel32==0) return NULL;
+			if((kernel32==(HMODULE)0xffffffff)){
+			kernel32=LoadLibrary("kernel32.dll");
+			if(kernel32==0)
+				return 0;
+			}
+		return GetProcAddress(kernel32,name);
+	}
+
+	void Color(int bg, int fr){
+		(*doSetConsoleTextAttribute)(hCon,(bg*16)+fr);
 	}
 #endif
 
@@ -365,9 +362,11 @@ void credits(){
 	printf("compiled on:" __DATE__ " at " __TIME__ " using C99 version: %li \n", __STDC_VERSION__);
 		printf("Compiled on ");
 	#ifdef __unix__
-		printf("Linux");git
+		printf("Linux");
 	#elif defined(_WIN32) || defined(WIN32)
 		printf("Windows");
+	#else
+		printf("something this wasn't intended to work on!");
 	#endif
 	printf("\n\n Written and stuff done and so on by Jack ");
 	Color(0,15);

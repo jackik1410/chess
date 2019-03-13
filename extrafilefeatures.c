@@ -15,7 +15,7 @@ int importBoard(){
 			printf("possibly incompatible file, file is intended for versions compiled on %s, while this was compiled on %s\n returning to menu\n", filedate, __DATE__ );
 			return 0;
 		}
-		fscanf(file, "Player 0 as %s\nPlayer 1 as %s\n", &player0name, player1name);
+		fscanf(file, "Player 0 as %s\nPlayer 1 as %s\n", player0name, player1name);
 	printf("Found and opened!\n");//well, i'll have to decide on a format then won't i?
 	return 1;//only if found and imported!!
 }
