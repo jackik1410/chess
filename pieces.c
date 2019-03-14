@@ -20,7 +20,7 @@ int owner(int x, int y) {
 	return 3;
 }
 
-int checkAllMoves(int content, int player, int posX, int posY, int moveX, int moveY) {
+int checkAllMoves(int checkboard[rangeX][rangeY],int content, int player, int posX, int posY, int moveX, int moveY) {
 		// target position on board is already checked! No invalid (off board) coordinates passed.
 	if(posX==moveX && posY==moveY) return 0;//check for no move
 	if(owner(posX, posY)!=player) {//shouldn't happen
@@ -48,13 +48,13 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 		case 0://pawn 6 12
 			if (deltaX == 0) {
 				if( ((player == 0)&&(deltaY==-1)) || ((player == 1)&&(deltaY==1))){
-					if (board[moveX][moveY]==0) {//checking for collision on normal move
+					if (checkboard[moveX][moveY]==0) {//checking for collision on normal move
 						return 1;//normal move forward
 					}
 					return 0;//collision
 				} else {
 					if((player == 0 && posY==6 && deltaY==-2) || (player==1 && posY==1 && deltaY==2)){//double move if not moved
-						if (board[moveX][moveY]==0) {//checking for collision on normal move
+						if (checkboard[moveX][moveY]==0) {//checking for collision on normal move
 							return 1;//double move forward
 						}
 						return 0;//collision
@@ -63,7 +63,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 				}
 			}
 			if (Betrag(deltaX) == 1 && ((player==0 && deltaY==1) || (player==1 && deltaY==-1)) ) {//check for enemy piece taking
-				if (board[moveX][moveY] != 0 && owner(moveX, moveY) != player) return 1; //slay piece if move valid, piece there and not your piece
+				if (checkboard[moveX][moveY] != 0 && owner(moveX, moveY) != player) return 1; //slay piece if move valid, piece there and not your piece
 			}
 			return 0;
 			break;
@@ -77,7 +77,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 			return 0;
 			break;
 		case 4://queen 4 10, check rook and bishop for movment
-				if (1==checkAllMoves(1+6*player, player, posX, posY, moveX, moveY) || 1==checkAllMoves(3+6*player, player, posX, posY, moveX, moveY)) return 1;//check details for rook and bishop movement
+				if (1==checkAllMoves( checkboard, 1+6*player, player, posX, posY, moveX, moveY) || 1==checkAllMoves( checkboard, 3+6*player, player, posX, posY, moveX, moveY)) return 1;//check details for rook and bishop movement
 				return 0;
 			break;
 		case 1://rook 1 7
@@ -85,7 +85,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 				int delta=Betrag(deltaX+deltaY);//equals movement, as one of them is 0
 				//printf("\nBetrag = %d", delta);
 				for (int n = 1; n < delta; n++) {//check for path but not final position
-					if(board[deltaX/delta * n + posX][deltaY/delta * n + posY]!=0) return 0;
+					if(checkboard[deltaX/delta * n + posX][deltaY/delta * n + posY]!=0) return 0;
 					//printf("  n = %d, x= %d, y= %d\n", n, deltaX/delta * n + posX, deltaY/delta * n + posY);
 				}
 				if(owner(moveX, moveY)==player) return 0; //can't move if own piece, only if empty or enemy
@@ -95,7 +95,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 			break;
 		case 2://knight = Springer  2 8
 			if( (Betrag(deltaX)==1 && Betrag(deltaY)==2) || (Betrag(deltaX)==2 && Betrag(deltaY)==1) ){
-				if(board[moveX][moveY]==0) { //check collision
+				if(checkboard[moveX][moveY]==0) { //check collision
 					return 1;
 				}else{
 					return 0;
@@ -108,7 +108,7 @@ int checkAllMoves(int content, int player, int posX, int posY, int moveX, int mo
 				int dy = deltaY / Betrag(deltaY);
 				int distance = Betrag(deltaX);
 				for (int n = 1; n < distance; n++) {
-					if (board[dx*n + posX][dy*n + posY] != 0) return 0; //cancel on finding obstacle (not include final position)
+					if (checkboard[dx*n + posX][dy*n + posY] != 0) return 0; //cancel on finding obstacle (not include final position)
 				}
 				if (owner(moveX, moveY) != player) return 1;//only slay pieces if final location not own piece!
 			}
@@ -177,7 +177,7 @@ int TryMove(int player, int depth){//for a more advanced ai
 	return TryMove( player, depth+1);
 }
 
-int MovePiece(int x, int y, int a, int b, int ifaiplayer){
+int MovePiece(int checkboard[rangeX][rangeY], int x, int y, int a, int b, int ifaiplayer){
 	if(board[a][b]!=0){//no score if empty
 		if(owner(x,y)==owner(a,b)) ErrorMsg(__COUNTER__, "slaying own piece!");//safety
 	}
@@ -197,7 +197,7 @@ int MovePiece(int x, int y, int a, int b, int ifaiplayer){
 				//printf("not checked\n");
 			} else {
 				//printf("could check? testing now\n");
-				if(1==checkAllMoves( board[xtest][ytest], owner(xtest, ytest), xtest, ytest, Kingx, Kingy)) {
+				if(1==checkAllMoves( board, board[xtest][ytest], owner(xtest, ytest), xtest, ytest, Kingx, Kingy)) {
 					//printf("is checking!!!\n");
 					//returning pieces
 					board[a][b] = slainpiece;
@@ -215,5 +215,5 @@ int MovePiece(int x, int y, int a, int b, int ifaiplayer){
 
 
 	//moving and changing score only after found not moving into check position
-	PlayerScores[owner(x,y)] += PieceScore(board[a][b]);//attributing score
+	PlayerScores[owner(x,y)] += PieceScore(checkboard[a][b]);//attributing score
 }

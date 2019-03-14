@@ -174,7 +174,7 @@ int checkBoard(int turn){
 		int Kingx; int Kingy; findKings(player, &Kingx, &Kingy);//check for check and compare to last status for checkmate and game over
 		for (int a = 0; a < rangeY; a++) {//looking for pieces that can attack the king pieces
 			for (int b = 0; b < rangeY; b++) {
-				if ((player+1)%2==owner(a,b)) if(1==checkAllMoves(board[a][b], (player+1)%2, a, b, Kingx, Kingy)) {//schach!!!
+				if ((player+1)%2==owner(a,b)) if(1==checkAllMoves( board, board[a][b], (player+1)%2, a, b, Kingx, Kingy)) {//schach!!!
 					//compare to last
 					Color(4,15);
 					printf(" Check for player %d, %s ", player, PlayerName(player));
@@ -192,7 +192,7 @@ int checkBoard(int turn){
 							//trying all possible moves
 								for (int moveX = 0; moveX < rangeX; moveX++) {
 									for (int moveY = 0; moveY < rangeY; moveY++) {
-										if (owner(moveX,moveY)!=player && 1==checkAllMoves(testboard[x][y], player, x, y, moveX, moveY)) {//evaluate move if valid
+										if (owner(moveX,moveY)!=player && 1==checkAllMoves( board, testboard[x][y], player, x, y, moveX, moveY)) {//evaluate move if valid
 											//now checking if enemies pieces are still attacking the checked player's King
 
 											//for---
@@ -200,7 +200,7 @@ int checkBoard(int turn){
 												for (int y2 = 0; y2 < rangeY; y2++) {
 													if (owner(x2,y2)!=player) {
 														findKings(player, &Kingx, &Kingy);
-														if (1==checkAllMoves(testboard[x2][y2], owner(x2,y2), x2, y2, Kingx, Kingy)) {
+														if (1==checkAllMoves( board, testboard[x2][y2], owner(x2,y2), x2, y2, Kingx, Kingy)) {
 															printf("GAMEOVER\n   Winner: %d", (player+1)%2);
 															//GAMEOVER();
 															return 1;
@@ -294,7 +294,7 @@ void printBoard(int xpiece, int ypiece, int player){ //coords for showing possib
 			for(int x=0; x<rangeX; x++){//going through x coords
 				//Colorcoding
 				int bg;//actual color
-				if(xpiece!=-1 && ypiece!=-1 && 1==checkAllMoves(board[xpiece][ypiece], player, xpiece, ypiece, x, y)) {
+				if(xpiece!=-1 && ypiece!=-1 && 1==checkAllMoves( board, board[xpiece][ypiece], player, xpiece, ypiece, x, y)) {
 					bg = 2;//green for valid position
 				} else {
 					switch ((x+y)%2) {//white or black square
@@ -384,14 +384,14 @@ int AiMove(int aiplayer){
 			if (ShowAiThoughts==1) printf("\n found own piece at %d,%d  ", a, b);
 			for (int c = 0; c < rangeY; c++) {
 				for (int d = 0; d < rangeX; d++) {
-					if(owner(c,d)!=aiplayer && 1==checkAllMoves(board[a][b], aiplayer, a, b, c, d)){//save move if valid and most points, rather more points than previous
+					if(owner(c,d)!=aiplayer && 1==checkAllMoves( board, board[a][b], aiplayer, a, b, c, d)){//save move if valid and most points, rather more points than previous
 //rand()%2-1 is there to also allow non slaying moves and provide unpredictability without sacrificing "intelligence"
 //may add points for future opportunities and deduct points for possible piece losses later
 						if (ShowAiThoughts==1) printf("can slay piece with value %d at %d %d", PieceScore(board[c][d]), c, d);
 						int PieceValue = 0;
 						for (int e = 0; e < rangeY; e++) {
 							for (int f = 0; f < rangeX; f++) {//looking for enemie pieces that attack the position to move to
-								if (owner(e,f)!=aiplayer && checkAllMoves(board[e][f], owner(e,f), e, f, c, d)) {
+								if (owner(e,f)!=aiplayer && board[e][f]!=0 && checkAllMoves( board, board[e][f], owner(e,f), e, f, c, d)) {
 									PieceValue = PieceScore(board[a][b]); // because piece may be lost (consider cover chains later, with both allies and enemies, possible chain lenghts and values)
 								} else PieceValue = 0;//would not be lost
 							}
@@ -413,7 +413,7 @@ int AiMove(int aiplayer){
 		ErrorMsg(__COUNTER__, "Ai failed to find good move");
 	}
 	if(ShowAiThoughts==1) printf("\n Moving piece %s from %d,%d to %d,%d\n", PieceName(board[af][bf]), af, bf, cf, df);
-	MovePiece(af, bf, cf, df, 1); // doesn't yet work correctly
+	MovePiece(board, af, bf, cf, df, 1); // doesn't yet work correctly
 	return 1;
 }
 
@@ -434,13 +434,13 @@ int playerMove(int player){
 			int possMoves = 0;
 			for (int y = 0; y < rangeY; y++) {
 				for (int x = 0; x < rangeX; x++) {
-					possMoves = possMoves + checkAllMoves(board[inputx][inputy], player, inputx, inputy, x, y);
+					possMoves = possMoves + checkAllMoves( board, board[inputx][inputy], player, inputx, inputy, x, y);
 				}
 			}
 			printf("possible moves = %d, choose destination (x,y): ", possMoves);
 			int xpos=inputx; int ypos=inputy;
 			inputx=-1; inputy=-1;//resetting for new input to not trigger returning to selection
-			while (0==checkAllMoves(board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
+			while (0==checkAllMoves( board, board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
 				while (2 != scanf(" %d,%d", &inputx, &inputy) || player == owner(inputx, inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy) {//second check includes check for no movment
 					if(inputx==xpos && inputy==ypos){//opens dialog to go back
 						//might add actual commands in the future to access menu and other things in the future
@@ -458,7 +458,7 @@ int playerMove(int player){
 				}
 			}
 			//if succeded, execute movement
-			MovePiece(xpos, ypos, inputx, inputy, 0);
+			MovePiece(board, xpos, ypos, inputx, inputy, 0);
 			return 1;
 		}
 	}
