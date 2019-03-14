@@ -39,14 +39,29 @@ int board[rangeX][rangeY];
 	#define CPlayer0  "\x1B[37m" //color light grey
 	#define CPlayer1  "\x1B[30m" //color black
 	*/
-	void getch(){
+	void getch(){//my linux tests conlcuded it didn't like this function very much
 		const char* nothing;
 		scanf("%s\n", nothing);
 		//nothing comes from nothing and if you return to nothing, what have you lost? NOTHING!
 	}
 
 	void Color(int bg, int fr){//ignores bg color for now, i don't know how to set that sadly...
-
+	switch (fr) {
+		case 0:
+			printf("\e[0m");//resetting colors
+			break;
+		case 4://red, such as used for erros
+			printf("\x1B[31m");
+			break;
+		case CPlayer0:
+			printf("\x1B[31m");//i know this is red, i can't change how it displays it...
+			break;
+		case CPlayer1:
+			printf("\x1B[34m");//blue, easy to see agains red
+			break;
+		default;//just do nothing
+	}
+		printf("%s\n", );
 	}
 #elif defined(_WIN32) || defined(WIN32) //if windows (primary focus, colors work a LOT better here!)
 //the following small bit was copied from the internet, i had no other way to use colors apart from passing the windows console simple batch commands, which would change the color of the whole window, not just a few characters
@@ -75,26 +90,47 @@ int board[rangeX][rangeY];
 	}
 #endif
 
-//debug();
+int logging=1;//just for now, should be off or atleast off at defualt
+void debuglog(char* output){
+	if (logging!=1) return;// does nothing if not on!
+	FILE *log =	fopen("chesslog.txt", "a");//very unelegant to open the file everytime to add, but it's only for debugging, so it's not important to have it perform well
+	//may consider writing this bit in the INIT() function if it survives
 
-void ErrorMsg(int num, char* reason){
+	fprintf(log, "%s\n", output);
+	fclose(log);
+}
+
+void ErrorMsg(int num, char* reason){//ideally shouldn't be called
 	Color(0,4);//KRED
 	printf("\nAn ERROR HAS OCCURED, CODE: %d, %s\n", num, reason);
 	//
 	getch();
 	Color(0,15);//nocolor
+	if (logging==1) {//only wrinte into log if supposed to
+		/*
+		char * logmessage="Error number ";
+		printf(logmessage);
+		strcat(logmessage, (char) num);
+		printf(logmessage);
+		strcat(logmessage, " was thrown because: ");
+		printf(logmessage);
+		strcat(logmessage, reason);
+		printf(logmessage);
+		*/
+		char * logmessage="";
+			printf("The error is here?\n");
+		sprintf(logmessage, "Error number %d was thrown for: ", num); //logmessage = "failed to write message into log";
+		printf("%s\n", logmessage);
+		getch();
+		printf("or here?\n");
+		debuglog(logmessage);
+		getch();
+	}
 }
 
-int Betrag(int zahl){
-	if(zahl < 0){
-		zahl *= -1;
-	}
-	return zahl;
-}
 
 #include "debug.c" //just some test functions so that i don't have to enter the konami code every single time...
 #include "pieces.c" //all declarations and definitions for pieces and movement
-
 
 int SetBoard(){
 	for(int y=0; y<rangeY; y++){
@@ -190,17 +226,18 @@ int checkBoard(int turn){
 						for (int y = 0; y < rangeY; y++) {
 							if (owner(x,y)==player) {//finding the checked player's pieces
 							//trying all possible moves
+							debuglog("for loop 2");
 								for (int moveX = 0; moveX < rangeX; moveX++) {
 									for (int moveY = 0; moveY < rangeY; moveY++) {
 										if (owner(moveX,moveY)!=player && 1==checkAllMoves( board, testboard[x][y], player, x, y, moveX, moveY)) {//evaluate move if valid
 											//now checking if enemies pieces are still attacking the checked player's King
 
-											//for---
+											debuglog("for loop 3");
 											for (int x2 = 0; x2 < rangeX; x2++) {
 												for (int y2 = 0; y2 < rangeY; y2++) {
 													if (owner(x2,y2)!=player) {
 														findKings(player, &Kingx, &Kingy);
-														if (1==checkAllMoves( board, testboard[x2][y2], owner(x2,y2), x2, y2, Kingx, Kingy)) {
+														if (1==checkAllMoves( testboard, testboard[x2][y2], owner(x2,y2), x2, y2, Kingx, Kingy)) {
 															printf("GAMEOVER\n   Winner: %d", (player+1)%2);
 															//GAMEOVER();
 															return 1;
@@ -482,7 +519,7 @@ void AivsAI() {//mostly for debugging and fun, not an actual mode really...
 		Status = checkBoard(player);
 		printBoard( -1, -1, -1);//prints just the board, no other information like moves
 		getch();
-		player= (player +1)%playernum;
+		player = (player + 1) %playernum;
 	}
 }
 
@@ -492,13 +529,12 @@ int play(int player, int numTurns, int aiplayer){
 	checkBoard(player);//checks for status, such as checkmate
 	Color(0,15);//nocolor
 	printBoard(-1, -1, player);
-	printf("Your Move! (x,y)\n");
-	//AiMove(player);
-	//getch();
 
 	if (player==aiplayer) {
+		printf("AI moves:\n");
 		AiMove(player);
 	} else {
+		printf("Your Move! (x,y)\n");
 		playerMove(player);
 	}
 
@@ -511,7 +547,7 @@ int play(int player, int numTurns, int aiplayer){
 }
 
 int Rochade0 = 0;//set 1 if done, was in check or moves through check
-int Rochade1 = 0;
+int Rochade1 = 0;//is not yet actually checked...
 void beginPlay(int ai){// will become settings for the ai and player
 	Rochade0 = 0; Rochade1 = 0;
 	for (int n = 0; n < playernum; n++) {

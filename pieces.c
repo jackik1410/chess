@@ -1,4 +1,10 @@
-//backup plan:
+int Betrag(int zahl){
+	if(zahl < 0){
+		zahl *= -1;
+	}
+	return zahl;
+}
+
 void CollisionAlert(){ //I know it's not worth it to be it's own function ^^
 	Color(0,4);//KRED
 	printf("\ncollision with your own piece!\n");
@@ -186,7 +192,7 @@ int MovePiece(int checkboard[rangeX][rangeY], int x, int y, int a, int b, int if
 	int player = owner(x, y);
 
 		//moving pieces for now, can return them if not valid
-	board[a][b]=board[x][y];//moving
+	board[a][b]=board[x][y];//moving by copy
 	board[x][y]=0;//deleting
 
 	int Kingx; int Kingy; findKings(player, &Kingx, &Kingy);

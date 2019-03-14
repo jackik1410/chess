@@ -13,30 +13,6 @@ void BreakError() {//for quick testing
   getch();
 }
 
-
-void debug(){ // not recommended, may not work
-	//put your code here and it will run before anything else
-	//system("COLOR 9C");
-
-	//for (int i = 0; i < 20; i++) printf("%d\n", rand()%2-1);
-
-	//colordemo();
-	//getch();
-	//printBoard(3,4,owner(3, 4));
-	//getch();
-	//getch();
-
-	//debugboard();
-	//play(0,0,-1);
-
-	//checkAllMoves(6, 0);
-
-	//getch();
-	//ClearScreen();
-
-	//colordemo();
-}
-
 void debugboard(){
 	board[3][0] = 11;
 	board[3][3] = 12;
@@ -49,4 +25,30 @@ void debugboard(){
 	board[][] = ;
 	board[][] = ;
 	*/
+}
+
+void debug(){ // not recommended, may not work
+	//put your code here and it will run before anything else
+	//system("COLOR 9C");
+
+	//for (int i = 0; i < 20; i++) printf("%d\n", rand()%2-1);
+	/*
+	puts("test?");
+	char* string = "test";
+	printf(string);
+	sprintf(string, "just cause i can");
+	getch();
+
+	//ErrorMsg(1, "i wanted it to!");
+	debugboard();
+	AivsAI();
+	*/
+	//play(0,0,-1);
+
+	//checkAllMoves(6, 0);
+
+	//getch();
+	//ClearScreen();
+
+	//colordemo();
 }
