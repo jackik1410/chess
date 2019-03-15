@@ -43,6 +43,7 @@ int board[rangeX][rangeY];
 		const char* nothing;
 		scanf("%s\n", nothing);
 		//nothing comes from nothing and if you return to nothing, what have you lost? NOTHING!
+		//~always look on the briiiigth side of life~
 	}
 
 	void Color(int bg, int fr){//ignores bg color for now, i don't know how to set that sadly...
@@ -50,11 +51,14 @@ int board[rangeX][rangeY];
 		case 0:
 			printf("\e[0m");//resetting colors
 			break;
+		case 2://green
+			printf("\x1B[32m");
+			break;
 		case 4://red, such as used for erros
 			printf("\x1B[31m");
 			break;
 		case CPlayer0:
-			printf("\x1B[31m");//i know this is red, i can't change how it displays it...
+			printf("\x1B[31m");//i know this is red, i can't change my options...
 			break;
 		case CPlayer1:
 			printf("\x1B[34m");//blue, easy to see agains red
@@ -93,6 +97,8 @@ int board[rangeX][rangeY];
 ////function declarations for when/if they are needed
 void settings();
 void AivsAI();
+char* PieceName(int piece);
+const char* PlayerName(int player);
 
 
 int logging=1;//just for now, should be off or atleast off at defualt
@@ -479,10 +485,10 @@ int playerMove(int player){
 				}
 			}
 			printf("possible moves = %d, choose destination (x,y): ", possMoves);
-			int xpos=inputx; int ypos=inputy;
+			int xpos=inputx; int ypos=inputy;//saving origin for move
 			inputx=-1; inputy=-1;//resetting for new input to not trigger returning to selection
 			while (0==checkAllMoves( board, board[xpos][ypos], player, xpos, ypos, inputx, inputy)) {
-				while (2 != scanf(" %d,%d", &inputx, &inputy) || player == owner(inputx, inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy) {//second check includes check for no movment
+				while (0==scanf("%s", cominput) || 2!=sscanf(cominput, " %d,%d", &inputx, &inputy) || player == owner(inputx, inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy) {//second check includes check for no movment
 					if(inputx==xpos && inputy==ypos){//opens dialog to go back
 						//might add actual commands in the future to access menu and other things in the future
 						printf("\nSwitch piece? (y/n) ");
@@ -555,6 +561,7 @@ int play(int player, int numTurns, int aiplayer){
 int Rochade0 = 0;//set 1 if done, was in check or moves through check
 int Rochade1 = 0;//is not yet actually checked...
 void beginPlay(int ai){// will become settings for the ai and player
+	if (logging==!) debuglog("Setting up Standart Board...");
 	Rochade0 = 0; Rochade1 = 0;
 	for (int n = 0; n < playernum; n++) {
 		PlayerScores[n] = 0;//reset scores for all players
@@ -624,7 +631,7 @@ int main(){
 		Color(0,15);
 		Rainbow("\n CHESS SIM FOR C-COURSE!\n\n", 0);
 		Color(15, 11);
-		printf("Do not write any non-number characters apart from the comma ',' symbol\n Also this Game works best with a num-pad\n");
+		printf("this Game works best with a num-pad\n");
 		Color(0, 15);
 		printf("\n 1. play 2player mode\n 2. play as white agains ai\n 3. play as black agains ai\n");
 		if (0) printf(" 4. view last board/Continue\n"); // to be edited
@@ -634,7 +641,7 @@ int main(){
 		while(1){//no menu input, no continuing!
 			scanf("%s", readinput);
 			if (1==sscanf(readinput, " %d", &input)) break;
-			printf("\n not a valid option, please enter a number\n");
+			printf("not a valid option, please enter a number\n");
 		};
 
 		switch (input){

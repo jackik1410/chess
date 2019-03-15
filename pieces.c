@@ -222,4 +222,13 @@ int MovePiece(int checkboard[rangeX][rangeY], int x, int y, int a, int b, int if
 
 	//moving and changing score only after found not moving into check position
 	PlayerScores[owner(x,y)] += PieceScore(checkboard[a][b]);//attributing score
+	if (logging==1) {
+		char message [1000];
+		sprintf(message, "Player %d '%s'moved piece %d %s from %d,%d to %d,%d", player, PlayerName(player), board[x][y], PieceName(slayingpiece), x, y, a, b);
+		if (slainpiece!=0) {
+			sprintf(message, "%s slaying piece %d %s", message, slainpiece, PieceName(slainpiece));
+		}
+		debuglog(message);
+	}
+
 }
