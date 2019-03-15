@@ -41,7 +41,7 @@ void debug(){ // not recommended, may not work
 	// printf(cominput);
 	//int inputx, inputy;
 	//sscanf(cominput, " %d,%d", &inputx, &inputy);
-	getch();
+	
 
 	//ErrorMsg(1, "i wanted it to!");
 	//debugboard();
