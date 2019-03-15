@@ -90,42 +90,30 @@ int board[rangeX][rangeY];
 	}
 #endif
 
+////function declarations for when/if they are needed
+void settings();
+void AivsAI();
+
+
 int logging=1;//just for now, should be off or atleast off at defualt
-void debuglog(char* output){
+void debuglog(char* message){
 	if (logging!=1) return;// does nothing if not on!
 	FILE *log =	fopen("chesslog.txt", "a");//very unelegant to open the file everytime to add, but it's only for debugging, so it's not important to have it perform well
 	//may consider writing this bit in the INIT() function if it survives
 
-	fprintf(log, "%s\n", output);
+	fprintf(log, "%s\n", message);
 	fclose(log);
 }
 
 void ErrorMsg(int num, char* reason){//ideally shouldn't be called
 	Color(0,4);//KRED
 	printf("\nAn ERROR HAS OCCURED, CODE: %d, %s\n", num, reason);
-	//
-	getch();
 	Color(0,15);//nocolor
-	if (logging==1) {//only wrinte into log if supposed to
-		/*
-		char * logmessage="Error number ";
-		printf(logmessage);
-		strcat(logmessage, (char) num);
-		printf(logmessage);
-		strcat(logmessage, " was thrown because: ");
-		printf(logmessage);
-		strcat(logmessage, reason);
-		printf(logmessage);
-		*/
-		char * logmessage="";
-			printf("The error is here?\n");
-		sprintf(logmessage, "Error number %d was thrown for: ", num); //logmessage = "failed to write message into log";
-		printf("%s\n", logmessage);
-		getch();
-		printf("or here?\n");
-		debuglog(logmessage);
-		getch();
-	}
+	if (logging==1) return; //only write into log if supposed to
+
+	char * logmessage="";//sprintf needs a character limitation
+	snprintf(logmessage, 200,"Error number %d was thrown for: %s", num, reason); //logmessage = "failed to write message into log";
+	debuglog(logmessage);//print to file
 }
 
 
@@ -240,7 +228,7 @@ int checkBoard(int turn){
 														if (1==checkAllMoves( testboard, testboard[x2][y2], owner(x2,y2), x2, y2, Kingx, Kingy)) {
 															printf("GAMEOVER\n   Winner: %d", (player+1)%2);
 															//GAMEOVER();
-															return 1;
+															return 1;//directly returns because checkmate is checkmate even if there are more pieces attacking. Returns as soon as 1 is found for move
 														}
 													}
 												}
@@ -408,7 +396,7 @@ void credits(){
 	printf("\n\n Written and stuff done and so on by Jack ");
 	Color(0,15);
 	char null;
-	scanf(" %c", &null);
+	scanf(" %s", &null);//could have just used getch(); here, but works as well and only reacts to "\n" enter
 }
 
 int ShowAiThoughts = 1;//displays info about ai during move
@@ -455,15 +443,31 @@ int AiMove(int aiplayer){
 }
 
 int playerMove(int player){
-	printf("choose piece: ");
+	printf("choose piece (? for commands): ");
 	int inputx=-1; int inputy=-1;
-	while(2 != scanf(" %d,%d", &inputx, &inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy || owner(inputx, inputy)!=player){ //check for input validity as long as
-		//not valid coordinates, out of bounds or not own
-		Color(0,4);//KRED
-		printf("\nnot a valid piece that you own");
-		Color(0,15);//nocolor
-		printf("\nplease check your input: ");
+
+	//int *null=NULL;
+	char  cominput [100]= "";
+	while ( 0==scanf("%s", cominput) || 2!=sscanf(cominput, " %d,%d", &inputx, &inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy || owner(inputx, inputy)!=player) {//checking raw input and recieving it
+		if (0==strcmp(cominput, "?") || 0==strcmp(cominput, "help")) {//testing for all commands
+			Color(0,2);
+			printf("For selecting and moving pieces, type their coordinates like x,y \n other available commands are:\n menu, settings\n");
+			Color(0,15);
+		} else if (0==strcmp(cominput, "menu")) {
+			printf("not yet implemented\n");
+		} else if (0==strcmp(cominput, "settings")){
+			settings();
+			printBoard(-1,-1, player);//because it won't be visible anymore after settings;
+			printf("choose piece (? for commands): ");//printing first line again
+		} else {
+				//not valid coordinates, out of bounds or not own, or just wrong input
+				Color(0,4);//KRED
+				printf("\nnot valid coordinates of a piece that you own");
+				Color(0,15);//nocolor
+				printf("\nplease check your input: ");
+		}
 	}
+
 	//better save than sorry, checking the second time
 	if(inputx<=rangeX && 0<=inputx  &&  inputy<=rangeY && 0<=inputy){//in bounds
 		if(owner(inputx, inputy)==player){//checking ownership
@@ -538,7 +542,9 @@ int play(int player, int numTurns, int aiplayer){
 		playerMove(player);
 	}
 
-	checkBoard(player);//checks for status, such as checkmate
+	if (0!=checkBoard(player)){//checks for status, such as checkmate
+		return player;// i don't know yet, not sure how to best do that here
+	}
 	ClearScreen();
 	if(Status!=0) 	return GameOver(Status);
 
@@ -614,7 +620,7 @@ int main(){
 	debug();// solely for testing purposes
 	ClearScreen();
 	int input = 10;
-	while (0!=input) {
+	while (0!=input) {//runs the menu as long as the exit option wasn't chosen (0)
 		Color(0,15);
 		Rainbow("\n CHESS SIM FOR C-COURSE!\n\n", 0);
 		Color(15, 11);
@@ -623,9 +629,12 @@ int main(){
 		printf("\n 1. play 2player mode\n 2. play as white agains ai\n 3. play as black agains ai\n");
 		if (0) printf(" 4. view last board/Continue\n"); // to be edited
 		printf(" 8. settings \n 9. credits \n press 0 to quit\n");
-		int output = 0;
-		while(output==0){
-			 output = scanf(" %d", &input);
+
+		char readinput [5];
+		while(1){//no menu input, no continuing!
+			scanf("%s", readinput);
+			if (1==sscanf(readinput, " %d", &input)) break;
+			printf("\n not a valid option, please enter a number\n");
 		};
 
 		switch (input){

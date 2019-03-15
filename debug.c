@@ -32,17 +32,21 @@ void debug(){ // not recommended, may not work
 	//system("COLOR 9C");
 
 	//for (int i = 0; i < 20; i++) printf("%d\n", rand()%2-1);
-	/*
-	puts("test?");
-	char* string = "test";
-	printf(string);
-	sprintf(string, "just cause i can");
+
+	//debuglog("Testing Log");
+	//getch();
+
+	// char cominput [100]= " 4,3";
+	// scanf("%20s", cominput);
+	// printf(cominput);
+	//int inputx, inputy;
+	//sscanf(cominput, " %d,%d", &inputx, &inputy);
 	getch();
 
 	//ErrorMsg(1, "i wanted it to!");
-	debugboard();
-	AivsAI();
-	*/
+	//debugboard();
+	//AivsAI();
+
 	//play(0,0,-1);
 
 	//checkAllMoves(6, 0);
