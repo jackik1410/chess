@@ -99,7 +99,9 @@ void settings();
 void AivsAI();
 char* PieceName(int piece);
 const char* PlayerName(int player);
-
+int exportBoard(int player, int board[rangeX][rangeY]);
+int importBoard();
+int play(int player, int numTurns, int aiplayer);
 
 int logging=1;//just for now, should be off or atleast off at defualt
 void debuglog(char* message){
@@ -198,7 +200,7 @@ const char * PlayerName(int player){//will become configurable via string input
 int Status = 0;//will be updated every turn and compared to the one before the register check and checkmate
 int checkBoard(int turn){
 	//return 0;//just forr debugging or else...
-	int LastStatus = Status;
+	//int LastStatus = Status;//may or may not use at all
 
 	for (int player = 0; player < playernum; player++) {//checking for eachplayer just to be safe
 		int Kingx; int Kingy; findKings(player, &Kingx, &Kingy);//check for check and compare to last status for checkmate and game over
@@ -457,7 +459,7 @@ int playerMove(int player){
 	while ( 0==scanf("%s", cominput) || 2!=sscanf(cominput, " %d,%d", &inputx, &inputy) || inputx>=rangeX || 0>inputx  ||  inputy>=rangeY || 0>inputy || owner(inputx, inputy)!=player) {//checking raw input and recieving it
 		if (0==strcmp(cominput, "?") || 0==strcmp(cominput, "help")) {//testing for all commands
 			Color(0,2);
-			printf("For selecting and moving pieces, type their coordinates like x,y \n other available commands are:\n menu, settings\n");
+			printf("For selecting and moving pieces, type their coordinates like x,y \n other available commands are:\n menu, settings, export, import(not yet)\n");
 			Color(0,15);
 		} else if (0==strcmp(cominput, "menu")) {
 			printf("not yet implemented\n");
@@ -465,6 +467,13 @@ int playerMove(int player){
 			settings();
 			printBoard(-1,-1, player);//because it won't be visible anymore after settings;
 			printf("choose piece (? for commands): ");//printing first line again
+		} else if (0==strcmp(cominput, "export")){
+			exportBoard(player, board);
+			printBoard(-1,-1, player);
+			return playerMove(player);//
+		} else if (0==strcmp(cominput, "import")){
+			printf("not yet implemented");
+			importBoard(); //may want to do that in menu though...
 		} else {
 				//not valid coordinates, out of bounds or not own, or just wrong input
 				Color(0,4);//KRED

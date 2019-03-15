@@ -32,7 +32,9 @@ void debug(){ // not recommended, may not work
 	//system("COLOR 9C");
 
 	//for (int i = 0; i < 20; i++) printf("%d\n", rand()%2-1);
-
+	// SetBoard();
+	// exportBoard(0, board);
+	// importBoard();
 	//debuglog("Testing Log");
 	//getch();
 
@@ -41,7 +43,7 @@ void debug(){ // not recommended, may not work
 	// printf(cominput);
 	//int inputx, inputy;
 	//sscanf(cominput, " %d,%d", &inputx, &inputy);
-	
+
 
 	//ErrorMsg(1, "i wanted it to!");
 	//debugboard();

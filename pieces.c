@@ -230,5 +230,5 @@ int MovePiece(int checkboard[rangeX][rangeY], int x, int y, int a, int b, int if
 		}
 		debuglog(message);
 	}
-
+	return 1;//for valid and executed move
 }
