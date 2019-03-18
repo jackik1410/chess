@@ -223,11 +223,13 @@ int MovePiece(int checkboard[rangeX][rangeY], int x, int y, int a, int b, int if
 	//moving and changing score only after found not moving into check position
 	PlayerScores[owner(x,y)] += PieceScore(checkboard[a][b]);//attributing score
 	if (logging==1) {
-		char* message="";
-		sprintf(message, "Player %d '%s'moved piece %d %s from %d,%d to %d,%d", player, PlayerName(player), board[x][y], PieceName(slayingpiece), x, y, a, b);
+		char slaynmessage [50];
 		if (slainpiece!=0) {
-			sprintf(message, "%s slaying piece %d %s", message, slainpiece, PieceName(slainpiece));
-		}
+			sprintf(slaynmessage, " slaying piece %d %s of player %d '%s'", slainpiece, PieceName(slainpiece), owner(a,b), PlayerName(owner(a,b)));
+		} else slaynmessage[0]=0;
+		char message[100];
+		sprintf(message, "Player %d '%s'moved piece %d %s from %d,%d to %d,%d %s", player, PlayerName(player), board[x][y], PieceName(slayingpiece), x, y, a, b, slaynmessage);
+
 		debuglog(message);
 	}
 	return 1;//for valid and executed move

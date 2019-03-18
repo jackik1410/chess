@@ -570,7 +570,7 @@ int play(int player, int numTurns, int aiplayer){
 int Rochade0 = 0;//set 1 if done, was in check or moves through check
 int Rochade1 = 0;//is not yet actually checked...
 void beginPlay(int ai){// will become settings for the ai and player
-	if (logging==1) debuglog("Setting up Standart Board...");
+	if (logging==1) debuglog("Setting up standard Board...");
 	Rochade0 = 0; Rochade1 = 0;
 	for (int n = 0; n < playernum; n++) {
 		PlayerScores[n] = 0;//reset scores for all players
